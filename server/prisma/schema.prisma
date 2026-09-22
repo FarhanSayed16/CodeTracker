@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Professor {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  
+  classes      Class[]
+}
+
+model Class {
+  id          String     @id @default(uuid())
+  className   String
+  professorId String
+  createdAt   DateTime   @default(now())
+  
+  professor   Professor  @relation(fields: [professorId], references: [id])
+  students    Student[]
+  sessions    Session[]
+}
+
+model Student {
+  id          String               @id @default(uuid())
+  rollNo      String
+  name        String
+  classId     String
+  
+  class       Class                @relation(fields: [classId], references: [id])
+  responses   TaskResponse[]
+  sessions    SessionParticipant[]
+  
+  @@unique([classId, rollNo])
+}
+
+model Session {
+  id           String               @id @default(uuid())
+  classId      String
+  sessionCode  String               @unique
+  title        String
+  status       String               @default("ACTIVE")
+  startedAt    DateTime             @default(now())
+  endedAt      DateTime?
+  
+  class        Class                @relation(fields: [classId], references: [id])
+  tasks        Task[]
+  participants SessionParticipant[]
+}
+
+model Task {
+  id          String         @id @default(uuid())
+  sessionId   String
+  taskNumber  Int
+  title       String
+  description String?
+  createdAt   DateTime       @default(now())
+  
+  session     Session        @relation(fields: [sessionId], references: [id])
+  responses   TaskResponse[]
+  
+  @@unique([sessionId, taskNumber])
+}
+
+model TaskResponse {
+  id        String   @id @default(uuid())
+  taskId    String
+  studentId String
+  status    String   @default("NOT_STARTED")
+  issueText String?
+  updatedAt DateTime @updatedAt
+  
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id])
+  
+  @@unique([taskId, studentId])
+}
+
+model SessionParticipant {
+  sessionId String
+  studentId String
+  joinedAt  DateTime @default(now())
+  
+  session   Session  @relation(fields: [sessionId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+  
+  @@id([sessionId, studentId])
+}
