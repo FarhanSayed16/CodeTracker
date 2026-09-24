@@ -2,6 +2,7 @@ import { TaskStatus } from './enums';
 
 export interface ServerToClientEvents {
   'session-ended': () => void;
+  'session-taken-over': (data: { reason: string }) => void;
   'student-joined': (data: { studentId: string; rollNo: string; name: string }) => void;
   'new-task': (data: {
     id: string;

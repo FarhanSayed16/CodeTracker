@@ -13,6 +13,7 @@ import departmentsRoutes from './modules/departments/departments.routes';
 
 import { logger } from './utils/logger';
 import { corsOriginOption } from './config/corsOrigins';
+import { httpsProductionGuard } from './middleware/httpsGuard';
 import { apiLimiter } from './middleware/rateLimiter';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { errorHandler } from './middleware/errorHandler';
@@ -27,6 +28,8 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
+
+app.use(httpsProductionGuard);
 
 app.use(
   cors({
@@ -64,6 +67,16 @@ app.use(express.static(publicDir, { index: false }));
 /** Canonical student join (phones / no-companion fallback). */
 app.get('/join', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+/** Windows companion download landing. */
+app.get('/download', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'download.html'));
+});
+
+/** Deep-link bridge: tries codetrack:// then falls back to /join. */
+app.get('/open', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'open.html'));
 });
 
 /**

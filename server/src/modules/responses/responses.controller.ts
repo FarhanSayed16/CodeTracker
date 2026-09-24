@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ResponsesService } from './responses.service';
 import { sendSuccess, sendError } from '../../utils/apiResponse';
+import { logger } from '../../utils/logger';
 
 export class ResponsesController {
   static async updateStatus(req: Request, res: Response) {
@@ -18,6 +19,16 @@ export class ResponsesController {
 
       return sendSuccess(res, response, 'Status updated successfully');
     } catch (error: any) {
+      logger.warn(
+        {
+          err: error.message,
+          studentId: req.student?.studentId,
+          taskId: req.body?.taskId,
+          client: req.get('x-client-name'),
+          clientVersion: req.get('x-client-version'),
+        },
+        'Student status update failed'
+      );
       if (error.message.includes('Task not found')) return sendError(res, error.message, 404);
       if (error.message.includes('not a participant')) return sendError(res, error.message, 403);
       if (error.message.includes('Grace window expired')) return sendError(res, error.message, 403);

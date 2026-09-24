@@ -110,7 +110,7 @@ export class SessionsController {
   static async getQRCode(req: Request, res: Response) {
     try {
       const session = await SessionsService.getSession(req.professorId!, req.params.id as string);
-      const url = `${req.protocol}://${req.get('host')}/join?code=${session.sessionCode}`;
+      const url = `${req.protocol}://${req.get('host')}/open?code=${session.sessionCode}`;
       
       const QRCode = require('qrcode');
       const dataUrl = await QRCode.toDataURL(url);

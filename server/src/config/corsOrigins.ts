@@ -1,6 +1,6 @@
 import { env } from './env';
 
-/** Built-in local UI origins (dashboard + companion Vite). */
+/** Built-in local UI origins (dashboard + companion Vite) — merged only outside production. */
 const LOCAL_UI_ORIGINS = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -9,14 +9,23 @@ const LOCAL_UI_ORIGINS = [
 ];
 
 /**
- * Parse CORS_ORIGIN (comma-separated). Always includes local dashboard + companion
- * ports so Electron/Vite companions work without a manual .env edit.
+ * Parse CORS_ORIGIN (comma-separated).
+ * Production: only env list (set real HTTPS origins).
+ * Development: also allow local dashboard + companion ports.
  */
 export function getAllowedCorsOrigins(): string[] {
   const fromEnv = env.CORS_ORIGIN.split(',')
     .map((s) => s.trim())
     .filter(Boolean);
-  if (fromEnv.includes('*')) return ['*'];
+  if (fromEnv.includes('*')) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[cors] CORS_ORIGIN=* is unsafe in production — set explicit origins');
+    }
+    return ['*'];
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return [...new Set(fromEnv)];
+  }
   return [...new Set([...fromEnv, ...LOCAL_UI_ORIGINS])];
 }
 
