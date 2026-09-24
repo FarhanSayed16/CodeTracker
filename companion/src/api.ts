@@ -98,6 +98,26 @@ export const searchStudents = (code: string, q: string) =>
     `/sessions/${encodeURIComponent(code)}/students?q=${encodeURIComponent(q)}`
   );
 
+/** Quick connectivity check used by the join screen. */
+export async function pingApi(): Promise<{ ok: boolean; message: string; apiUrl: string }> {
+  const { apiUrl } = getConfig();
+  const base = apiUrl.replace(/\/api\/?$/, '');
+  try {
+    const res = await fetch(`${base}/api/health`, { method: 'GET' });
+    if (!res.ok) {
+      return { ok: false, message: `API returned ${res.status}`, apiUrl };
+    }
+    return { ok: true, message: 'Connected to server', apiUrl };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      message: `Cannot reach ${apiUrl}. Start the CodeTrack server (npm run dev in server/) or fix Config.`,
+      apiUrl,
+    };
+  }
+}
+
 export const joinSession = (body: { sessionCode: string; studentId: string; pin: string }) =>
   request<{
     token: string;

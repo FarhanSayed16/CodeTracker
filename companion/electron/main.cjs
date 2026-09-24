@@ -52,6 +52,13 @@ function productMeta(lockedRole) {
 }
 
 /** Merge lab-config.json (packaged / next to exe) + env for IT preconfigure. */
+function pickStr(...vals) {
+  for (const v of vals) {
+    if (typeof v === 'string' && v.trim()) return v.trim().replace(/\/$/, '');
+  }
+  return null;
+}
+
 function loadLabConfig() {
   const candidates = [
     path.join(process.resourcesPath || '', 'lab-config.json'),
@@ -69,11 +76,19 @@ function loadLabConfig() {
       /* skip */
     }
   }
+  let apiUrl =
+    pickStr(process.env.CODETRACK_API_URL, fileCfg.apiUrl) || 'http://localhost:3000/api';
+  if (/^https?:\/\//i.test(apiUrl) && !/\/api$/i.test(apiUrl)) {
+    apiUrl = `${apiUrl}/api`;
+  }
   return {
-    apiUrl: process.env.CODETRACK_API_URL || fileCfg.apiUrl || 'http://localhost:3000/api',
-    socketUrl: process.env.CODETRACK_SOCKET_URL || fileCfg.socketUrl || 'http://localhost:3000',
-    dashboardUrl: process.env.CODETRACK_DASHBOARD_URL || fileCfg.dashboardUrl || 'http://localhost:5173',
-    updateUrl: process.env.CODETRACK_UPDATE_URL || fileCfg.updateUrl || '',
+    apiUrl,
+    socketUrl:
+      pickStr(process.env.CODETRACK_SOCKET_URL, fileCfg.socketUrl) || 'http://localhost:3000',
+    dashboardUrl:
+      pickStr(process.env.CODETRACK_DASHBOARD_URL, fileCfg.dashboardUrl) ||
+      'http://localhost:5173',
+    updateUrl: pickStr(process.env.CODETRACK_UPDATE_URL, fileCfg.updateUrl) || '',
   };
 }
 

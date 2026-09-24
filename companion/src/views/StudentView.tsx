@@ -46,6 +46,8 @@ export function StudentView({
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchHint, setSearchHint] = useState('Enter session code, then type 2+ letters of your name or roll.');
+  const [apiOk, setApiOk] = useState<boolean | null>(null);
+  const [apiMsg, setApiMsg] = useState('Checking server…');
 
   const [code, setCode] = useState('');
   const [query, setQuery] = useState('');
@@ -148,6 +150,20 @@ export function StudentView({
       }
     );
     if (sock.connected) setConnected(true);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const ping = await api.pingApi();
+      if (cancelled) return;
+      setApiOk(ping.ok);
+      setApiMsg(ping.ok ? `${ping.message} · ${ping.apiUrl}` : ping.message);
+      if (!ping.ok) setConnected(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -421,7 +437,16 @@ export function StudentView({
 
       {step === 'join' && (
         <>
-          <p className="hint">Enter the full session code from the board / QR, then search your name.</p>
+          <div className={`api-status ${apiOk === true ? 'ok' : apiOk === false ? 'err' : ''}`}>
+            <span className="dot" />
+            <span>{apiMsg}</span>
+          </div>
+          {apiOk === false && (
+            <button type="button" className="btn secondary block" onClick={() => setStep('settings')}>
+              Open Config — set API URL
+            </button>
+          )}
+          <p className="hint">Enter the full session code, then your name. Results appear below — tap your name.</p>
           <div className="field">
             <label className="label">Session code</label>
             <input
@@ -449,10 +474,21 @@ export function StudentView({
                 setError('');
                 scheduleSearch(code, v);
               }}
-              placeholder="Type 2+ characters — results appear below"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void runSearch(code, query);
+              }}
+              placeholder="Type 2+ characters"
               autoComplete="off"
             />
           </div>
+          <button
+            type="button"
+            className="btn block"
+            disabled={searching || apiOk === false}
+            onClick={() => void runSearch(code, query)}
+          >
+            {searching ? 'Searching…' : 'Search'}
+          </button>
           {error && <p className="error">{error}</p>}
           <div className="search-results" aria-live="polite">
             {searching && <div className="search-hint">Searching…</div>}

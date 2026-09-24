@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getConfig, updateConfig } from '../config';
+import * as api from '../api';
+import { getConfig, getDefaultConfig, sanitizeUrl, updateConfig } from '../config';
 import { getRuntime } from '../runtime';
 import { saveConfig } from '../storage';
 import type { CompanionConfig } from '../types';
@@ -15,6 +16,8 @@ export function SettingsView({ onBack }: Props) {
   const [saved, setSaved] = useState(false);
   const [openAtLogin, setOpenAtLogin] = useState(!!rt.openAtLogin);
   const [updateMsg, setUpdateMsg] = useState('');
+  const [testMsg, setTestMsg] = useState('');
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     return window.companion?.onUpdateStatus?.((data) => {
@@ -28,9 +31,9 @@ export function SettingsView({ onBack }: Props) {
 
   const save = () => {
     const next = {
-      apiUrl: form.apiUrl.replace(/\/$/, '') || '/api',
-      socketUrl: form.socketUrl.replace(/\/$/, '') || window.location.origin,
-      dashboardUrl: form.dashboardUrl.replace(/\/$/, ''),
+      apiUrl: sanitizeUrl('api', form.apiUrl) || getDefaultConfig().apiUrl,
+      socketUrl: sanitizeUrl('socket', form.socketUrl) || getDefaultConfig().socketUrl,
+      dashboardUrl: sanitizeUrl('dashboard', form.dashboardUrl) || getDefaultConfig().dashboardUrl,
     };
     updateConfig(next);
     saveConfig(next);
@@ -43,7 +46,25 @@ export function SettingsView({ onBack }: Props) {
     localStorage.removeItem('ct_api_url');
     localStorage.removeItem('ct_socket_url');
     localStorage.removeItem('ct_dashboard_url');
+    const d = getDefaultConfig();
+    updateConfig(d);
+    saveConfig(d);
+    setForm(d);
     window.location.reload();
+  };
+
+  const testConnection = async () => {
+    setTesting(true);
+    setTestMsg('');
+    // Apply form values temporarily for ping
+    updateConfig({
+      apiUrl: sanitizeUrl('api', form.apiUrl) || form.apiUrl,
+      socketUrl: sanitizeUrl('socket', form.socketUrl) || form.socketUrl,
+      dashboardUrl: sanitizeUrl('dashboard', form.dashboardUrl) || form.dashboardUrl,
+    });
+    const ping = await api.pingApi();
+    setTestMsg(ping.ok ? `OK — ${ping.apiUrl}` : ping.message);
+    setTesting(false);
   };
 
   const toggleLogin = async () => {
@@ -55,9 +76,8 @@ export function SettingsView({ onBack }: Props) {
   return (
     <>
       <p className="hint">
-        Point the companion at your CodeTrack API. Lab images should set{' '}
-        <code>lab-config.json</code> or <code>CODETRACK_*</code> env so students skip this screen.
-        CORS must allow 5173 + 5174.
+        Desktop app must use a full URL like <code>http://localhost:3000/api</code> (not{' '}
+        <code>/api</code> or port 5174). Start the server with <code>cd server && npm run dev</code>.
       </p>
       {rt.version && <p className="hint">Version {rt.version}</p>}
       <div className="settings-form">
@@ -85,6 +105,10 @@ export function SettingsView({ onBack }: Props) {
             placeholder="http://localhost:5173"
           />
         </div>
+        <button type="button" className="btn secondary block" onClick={testConnection} disabled={testing}>
+          {testing ? 'Testing…' : 'Test connection'}
+        </button>
+        {testMsg && <p className={`hint ${testMsg.startsWith('OK') ? '' : 'error-inline'}`}>{testMsg}</p>}
         {window.companion?.setOpenAtLogin && (
           <button type="button" className="btn secondary block" onClick={toggleLogin}>
             {openAtLogin ? '✓ Start with Windows (on)' : 'Start with Windows (off)'}

@@ -519,7 +519,7 @@ textarea:focus {
   gap: 4px;
   max-height: 200px;
   overflow-y: auto;
-  min-height: 48px;
+  min-height: 72px;
 }
 
 .search-hint {
@@ -649,4 +649,46 @@ textarea:focus {
 .hint code {
   font-size: 10px;
   opacity: 0.9;
+}
+
+.api-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--muted);
+  background: #121820;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.api-status .dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--warn);
+  flex-shrink: 0;
+}
+
+.api-status.ok {
+  border-color: rgba(61, 154, 106, 0.45);
+  color: #a7f3d0;
+}
+.api-status.ok .dot {
+  background: var(--accent);
+}
+
+.api-status.err {
+  border-color: rgba(214, 69, 69, 0.45);
+  color: #fecaca;
+}
+.api-status.err .dot {
+  background: var(--danger);
+}
+
+.error-inline {
+  color: #f08080 !important;
 }
