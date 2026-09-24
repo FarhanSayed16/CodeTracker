@@ -14,5 +14,7 @@ router.get('/my-responses', studentAuthMiddleware, asyncHandler(ResponsesControl
 
 // Professor routes (require professor JWT)
 router.get('/grid/:sessionId', authMiddleware, validateMiddleware(sessionParamSchema), asyncHandler(ResponsesController.getStatusGrid));
+router.get('/issues/:sessionId', authMiddleware, validateMiddleware(sessionParamSchema), asyncHandler(ResponsesController.getIssues));
+router.post('/resolve/:sessionId', authMiddleware, validateMiddleware(sessionParamSchema), asyncHandler(ResponsesController.resolveIssue));
 
 export default router;

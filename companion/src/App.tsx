@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { initConfig } from './config';
-import { getRole } from './storage';
+import { getRuntime, initRuntime, resolveInitialRole } from './runtime';
+import { getRole, setRole } from './storage';
 import type { Role } from './types';
 import { RolePicker } from './views/RolePicker';
 import { StudentView } from './views/StudentView';
@@ -11,15 +12,26 @@ export default function App() {
   const [role, setRoleState] = useState<Role>(null);
 
   useEffect(() => {
-    initConfig().then(() => {
-      setRoleState(getRole());
+    (async () => {
+      await initConfig();
+      const rt = await initRuntime();
+      const initial = resolveInitialRole(getRole());
+      if (rt.lockedRole) {
+        setRole(rt.lockedRole);
+        setRoleState(rt.lockedRole);
+      } else {
+        setRoleState(initial);
+      }
+      if (rt.productLabel) {
+        document.title = rt.productLabel;
+      }
       setReady(true);
-    });
+    })();
   }, []);
 
   if (!ready) {
     return (
-      <div className="app-shell" style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <div className="app-shell app-shell--ball">
         <div className="ball">
           <div className="ball-inner">
             <span className="ball-dot" />
@@ -30,10 +42,14 @@ export default function App() {
     );
   }
 
+  const rt = getRuntime();
+
   if (!role) {
     return <RolePicker onPick={setRoleState} />;
   }
 
-  if (role === 'student') return <StudentView />;
-  return <ProfessorView />;
+  if (role === 'student') {
+    return <StudentView allowSwitchRole={rt.allowSwitchRole} ballLabel={rt.ballLabel || 'STU'} />;
+  }
+  return <ProfessorView allowSwitchRole={rt.allowSwitchRole} ballLabel={rt.ballLabel || 'PROF'} />;
 }

@@ -9,8 +9,12 @@ export const createSessionSchema = z.object({
 
 export const joinSessionSchema = z.object({
   body: z.object({
-    sessionCode: z.string().length(6, 'Session code must be 6 characters'),
-    rollNo: z.string().min(1, 'Roll number is required'),
+    sessionCode: z
+      .string()
+      .length(6, 'Session code must be 6 characters')
+      .transform((v) => v.toUpperCase()),
+    studentId: z.string().uuid('Invalid student ID'),
+    pin: z.string().optional(),
   }),
 });
 

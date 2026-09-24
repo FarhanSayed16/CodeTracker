@@ -133,6 +133,15 @@ You currently have **three separate live clients**, not one system:
 
 **Exit criteria:** With companion + dashboard only (widget closed), login/search/status work; no CORS; counts match.
 
+**Phase 1 implementation status (2026-09-24):**
+- [x] 1.1 Messaging (companion splash + `/join` lab banner)
+- [x] 1.2 `/join` canonical route; `/?code=` → `/join?code=`; public static no longer owns `/`
+- [x] 1.3 Socket parity (`id`+`taskId`, professor `new-task`/`task-removed`, companion handlers; students do not emit `join-session`)
+- [x] 1.4 Issue max 500 + 2min grace aligned
+- [x] 1.5 Config/docs + Reset defaults
+- [x] 1.6 Single-client warning on student tasks
+- [ ] 1.7 Manual QA on a live ACTIVE session (operator)
+
 ---
 
 ### Phase 2 — Role-correct UX & lab install model *(~3–5 days)*  

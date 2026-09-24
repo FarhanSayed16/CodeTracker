@@ -85,7 +85,13 @@ function playNotify() {
   }
 }
 
-export function ProfessorView() {
+export function ProfessorView({
+  allowSwitchRole = true,
+  ballLabel = 'PROF',
+}: {
+  allowSwitchRole?: boolean;
+  ballLabel?: string;
+}) {
   const [expanded, setExpanded] = useState(true);
   const [step, setStep] = useState<Step>(() => (getProfessorToken() ? 'pick' : 'login'));
   const [connected, setConnected] = useState<boolean | null>(null);
@@ -149,6 +155,7 @@ export function ProfessorView() {
       sock.off('status-update');
       sock.off('student-joined');
       sock.off('new-task');
+      sock.off('task-removed');
       sock.off('session-ended');
 
       sock.on('connect', () => {
@@ -203,6 +210,9 @@ export function ProfessorView() {
         showToast('New task added');
         void refreshGrid(tok, sessionId);
       });
+      sock.on('task-removed', () => {
+        void refreshGrid(tok, sessionId);
+      });
 
       if (sock.connected) {
         setConnected(true);
@@ -217,12 +227,16 @@ export function ProfessorView() {
     setError('');
     try {
       const list = await api.listSessions(tok, 'ACTIVE');
+      // Server returns startedAt desc — most recent first
       setSessions(list);
       const savedId = getProfessorSessionId();
       if (savedId && list.some((s) => s.id === savedId)) {
         await attachSession(tok, savedId);
       } else if (list.length === 1) {
         await attachSession(tok, list[0].id);
+      } else if (list.length > 1) {
+        // Multiple ACTIVE — let professor pick (do not silently attach wrong lab)
+        setStep('pick');
       } else {
         setStep('pick');
       }
@@ -306,6 +320,7 @@ export function ProfessorView() {
   };
 
   const switchRole = () => {
+    if (!allowSwitchRole) return;
     logout();
     setRole(null);
     window.location.reload();
@@ -324,7 +339,7 @@ export function ProfessorView() {
     <Shell
       expanded={expanded}
       onToggle={() => setExpanded((e) => !e)}
-      label="PROF"
+      label={ballLabel}
       connected={connected}
       badge={counts.issues}
       title={title}
@@ -372,9 +387,11 @@ export function ProfessorView() {
                   Log out
                 </button>
               )}
-              <button type="button" className="btn ghost" onClick={switchRole}>
-                Switch role
-              </button>
+              {allowSwitchRole && (
+                <button type="button" className="btn ghost" onClick={switchRole}>
+                  Switch role
+                </button>
+              )}
             </>
           )}
         </>
@@ -420,21 +437,27 @@ export function ProfessorView() {
 
       {step === 'pick' && (
         <>
-          <p className="hint">Choose an ACTIVE session to monitor. Create sessions in the web dashboard.</p>
+          <p className="hint">
+            ACTIVE sessions only (most recent first). Create or end sessions in the web dashboard —
+            this ball is for live monitoring.
+          </p>
           {loading && <p className="hint">Loading…</p>}
           {error && <p className="error">{error}</p>}
           {!loading && sessions.length === 0 && (
-            <div className="empty">No active sessions. Start one from the dashboard.</div>
+            <div className="empty">No active sessions. Start one from the dashboard, then Refresh.</div>
           )}
           <div className="search-results">
-            {sessions.map((s) => (
+            {sessions.map((s, idx) => (
               <button
                 key={s.id}
                 type="button"
                 className="search-item"
                 onClick={() => token && attachSession(token, s.id)}
               >
-                <div>{s.title}</div>
+                <div>
+                  {s.title}
+                  {idx === 0 ? <span className="roll"> · latest</span> : null}
+                </div>
                 <div className="roll">
                   {s.sessionCode}
                   {s.class?.name ? ` · ${s.class.name}` : ''}
@@ -442,6 +465,15 @@ export function ProfessorView() {
               </button>
             ))}
           </div>
+          {sessions.length > 0 && token && (
+            <button
+              type="button"
+              className="btn block"
+              onClick={() => attachSession(token, sessions[0].id)}
+            >
+              Attach latest
+            </button>
+          )}
           <button
             type="button"
             className="btn secondary block"

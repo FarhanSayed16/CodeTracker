@@ -34,7 +34,11 @@ export function SettingsView({ onBack }: Props) {
 
   return (
     <>
-      <p className="hint">Point the companion at your CodeTrack server. Restart connection after changing URLs.</p>
+      <p className="hint">
+        Point the companion at your CodeTrack API. Electron defaults to{' '}
+        <code>http://localhost:3000/api</code>. Browser-dev can use the Vite proxy (
+        <code>/api</code>). CORS must allow this origin (5173 dashboard + 5174 companion).
+      </p>
       <div className="settings-form">
         <div className="field">
           <label className="label">API URL</label>

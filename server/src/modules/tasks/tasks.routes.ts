@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TasksController } from './tasks.controller';
 import { validateMiddleware } from '../../middleware/validateMiddleware';
-import { createTaskSchema, taskIdParamSchema } from './tasks.schema';
+import { createTaskSchema, updateTaskSchema, taskIdParamSchema } from './tasks.schema';
 import { authMiddleware } from '../../middleware/authMiddleware';
 import { asyncHandler } from '../../utils/asyncHandler';
 
@@ -11,6 +11,7 @@ router.use(authMiddleware);
 
 router.post('/', validateMiddleware(createTaskSchema), asyncHandler(TasksController.createTask));
 router.get('/session/:sessionId', asyncHandler(TasksController.listTasks));
+router.patch('/:id', validateMiddleware(updateTaskSchema), asyncHandler(TasksController.updateTask));
 router.delete('/:id', validateMiddleware(taskIdParamSchema), asyncHandler(TasksController.deleteTask));
 
 export default router;

@@ -35,5 +35,6 @@ export function disconnectSocket() {
 }
 
 export function joinSessionRoom(sessionId: string) {
+  // Professors only — students are auto-joined by socketAuth on connect
   socket?.emit('join-session', sessionId);
 }

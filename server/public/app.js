@@ -586,7 +586,17 @@ function initWidget(studentName, sessionCode) {
 
   socket.on('new-task', (task) => {
     if (sessionEnded) return;
-    currentTasks.push(task);
+    const id = task.id || task.taskId;
+    if (!id || currentTasks.some((t) => t.id === id)) return;
+    currentTasks.push({
+      id,
+      title: task.title,
+      description: task.description,
+      taskNumber: task.taskNumber,
+      localStatus: 'NOT_STARTED',
+      localIssueText: '',
+      localDoneTimestamp: null,
+    });
     renderTasks();
     if (widgetExpanded.classList.contains('hidden')) {
       notificationDot.classList.remove('hidden');

@@ -3,8 +3,15 @@ import { TaskStatus } from './enums';
 export interface ServerToClientEvents {
   'session-ended': () => void;
   'student-joined': (data: { studentId: string; rollNo: string; name: string }) => void;
-  'new-task': (data: { taskId: string; taskNumber: number; title: string; description: string | null }) => void;
+  'new-task': (data: {
+    id: string;
+    taskId: string;
+    taskNumber: number;
+    title: string;
+    description: string | null;
+  }) => void;
   'task-removed': (data: { taskId: string }) => void;
+  'status-resolved': (data: { studentId: string; taskId: string; status: TaskStatus }) => void;
   'status-update': (data: {
     studentId: string;
     rollNo: string;

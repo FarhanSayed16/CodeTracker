@@ -39,9 +39,11 @@ npx prisma migrate deploy
 npm run db:seed
 npm run dev
 ```
-API: `http://localhost:3000` · Student join UI: `http://localhost:3000/`
+API: `http://localhost:3000` · Student join: `http://localhost:3000/join` · QR links use `/join?code=`
 
 Seed professor: `john.doe@example.com` / `password123`
+
+> **Lab PCs:** use the desktop Companion Quickball for live status. The `/join` page is for phones / fallback — do not run both on the same machine.
 
 ### 4. Dashboard
 ```bash

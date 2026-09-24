@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as api from '../api';
-import { connectSocket, disconnectSocket, joinSessionRoom } from '../socket';
+import { connectSocket, disconnectSocket } from '../socket';
 import { getStudentSession, setStudentSession, setRole } from '../storage';
 import type { StudentSession, StudentTask, TaskStatus } from '../types';
 import { Shell } from '../components/Shell';
 import { SettingsView } from '../components/SettingsView';
+import { GRACE_MS, ISSUE_MAX_LEN } from '../constants';
 
-const GRACE_MS = 2 * 60 * 1000;
-const ISSUE_MAX = 200;
 const SEARCH_DEBOUNCE_MS = 300;
 
 type Step = 'join' | 'pin' | 'tasks' | 'settings';
@@ -32,7 +31,13 @@ function mapTasks(
   });
 }
 
-export function StudentView() {
+export function StudentView({
+  allowSwitchRole = true,
+  ballLabel = 'STU',
+}: {
+  allowSwitchRole?: boolean;
+  ballLabel?: string;
+}) {
   const [expanded, setExpanded] = useState(true);
   const [step, setStep] = useState<Step>('join');
   const [connected, setConnected] = useState<boolean | null>(null);
@@ -53,6 +58,7 @@ export function StudentView() {
   const [tasks, setTasks] = useState<StudentTask[]>([]);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [clientWarning, setClientWarning] = useState(true);
   const [, tick] = useState(0);
   const graceTimer = useRef<number | null>(null);
   const searchTimer = useRef<number | null>(null);
@@ -75,10 +81,11 @@ export function StudentView() {
     sock.off('disconnect');
     sock.off('session-ended');
     sock.off('new-task');
-    sock.on('connect', () => {
-      setConnected(true);
-      joinSessionRoom(sess.sessionId);
-    });
+    sock.off('task-removed');
+    sock.off('status-resolved');
+
+    // Students are auto-joined to session rooms by the server — do NOT emit join-session
+    sock.on('connect', () => setConnected(true));
     sock.on('disconnect', () => setConnected(false));
     sock.on('session-ended', () => {
       setSessionEnded(true);
@@ -86,13 +93,21 @@ export function StudentView() {
     });
     sock.on(
       'new-task',
-      (task: { taskId: string; title: string; description: string | null; taskNumber: number }) => {
+      (task: {
+        id?: string;
+        taskId?: string;
+        title: string;
+        description: string | null;
+        taskNumber: number;
+      }) => {
+        const id = task.id || task.taskId;
+        if (!id) return;
         setTasks((prev) => {
-          if (prev.some((t) => t.id === task.taskId)) return prev;
+          if (prev.some((t) => t.id === id)) return prev;
           return [
             ...prev,
             {
-              id: task.taskId,
+              id,
               title: task.title,
               description: task.description,
               order: task.taskNumber ?? prev.length,
@@ -105,10 +120,28 @@ export function StudentView() {
         showToast('New task added', 'success');
       }
     );
-    if (sock.connected) {
-      setConnected(true);
-      joinSessionRoom(sess.sessionId);
-    }
+    sock.on('task-removed', ({ taskId }: { taskId: string }) => {
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      setOpenTaskId((open) => (open === taskId ? null : open));
+    });
+    sock.on(
+      'status-resolved',
+      (data: { taskId: string; status: TaskStatus; studentId?: string }) => {
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.id === data.taskId
+              ? {
+                  ...t,
+                  localStatus: data.status,
+                  localIssueText: data.status === 'ISSUE' ? t.localIssueText : '',
+                  localDoneTimestamp: data.status === 'DONE' ? Date.now() : null,
+                }
+              : t
+          )
+        );
+      }
+    );
+    if (sock.connected) setConnected(true);
   }, []);
 
   useEffect(() => {
@@ -302,6 +335,7 @@ export function StudentView() {
   };
 
   const switchRole = () => {
+    if (!allowSwitchRole) return;
     logout();
     setRole(null);
     window.location.reload();
@@ -321,7 +355,7 @@ export function StudentView() {
     <Shell
       expanded={expanded}
       onToggle={() => setExpanded((e) => !e)}
-      label="STU"
+      label={ballLabel}
       connected={connected}
       badge={issueCount}
       title={title}
@@ -444,6 +478,15 @@ export function StudentView() {
 
       {step === 'tasks' && (
         <>
+          {clientWarning && (
+            <div className="client-warning">
+              Use only this Quickball for lab status — close the browser join page (
+              <code>/join</code>) if it is open on this PC.
+              <button type="button" className="btn ghost" onClick={() => setClientWarning(false)}>
+                Dismiss
+              </button>
+            </div>
+          )}
           {sessionEnded && <p className="error">This session has ended.</p>}
           <p className="hint">
             {session?.studentName} · {session?.sessionCode}
@@ -510,13 +553,13 @@ export function StudentView() {
                       {task.localStatus === 'ISSUE' && (
                         <>
                           <textarea
-                            maxLength={ISSUE_MAX}
+                            maxLength={ISSUE_MAX_LEN}
                             value={task.localIssueText}
                             onChange={(e) =>
                               setTasks((prev) =>
                                 prev.map((t) =>
                                   t.id === task.id
-                                    ? { ...t, localIssueText: e.target.value.slice(0, ISSUE_MAX) }
+                                    ? { ...t, localIssueText: e.target.value.slice(0, ISSUE_MAX_LEN) }
                                     : t
                                 )
                               )

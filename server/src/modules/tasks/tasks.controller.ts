@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { TasksService } from './tasks.service';
 import { sendSuccess, sendError } from '../../utils/apiResponse';
-import { getIO } from '../../socket';
 
 export class TasksController {
   static async createTask(req: Request, res: Response) {
@@ -13,10 +12,7 @@ export class TasksController {
         req.body.description
       );
 
-      // Emit socket event 'new-task' to the room `session_${sessionId}`
-      const io = getIO();
-      io.to(`session_${req.body.sessionId}`).emit('new-task', task);
-      
+      // Socket emit happens in TasksService via emitToStudents
       return sendSuccess(res, task, 'Task created successfully', 201);
     } catch (error: any) {
       if (error.message.includes('Forbidden') || error.message.includes('not found')) {
@@ -31,7 +27,7 @@ export class TasksController {
 
   static async listTasks(req: Request, res: Response) {
     try {
-      const tasks = await TasksService.listTasks(req.professorId!, req.params.sessionId);
+      const tasks = await TasksService.listTasks(req.professorId!, req.params.sessionId as string);
       return sendSuccess(res, tasks);
     } catch (error: any) {
       return sendError(res, error.message, 403);
@@ -40,12 +36,29 @@ export class TasksController {
 
   static async deleteTask(req: Request, res: Response) {
     try {
-      const result = await TasksService.deleteTask(req.professorId!, req.params.id);
-      
-      const io = getIO();
-      io.to(`session_${result.task.sessionId}`).emit('task-removed', { taskId: result.task.id });
-      
+      await TasksService.deleteTask(req.professorId!, req.params.id as string);
+      // Socket emit happens in TasksService via emitToStudents
       return sendSuccess(res, null, 'Task deleted successfully');
+    } catch (error: any) {
+      if (error.message.includes('Forbidden') || error.message.includes('not found')) {
+        return sendError(res, error.message, 403);
+      }
+      if (error.message.includes('ended session')) {
+        return sendError(res, error.message, 400);
+      }
+      throw error;
+    }
+  }
+
+  static async updateTask(req: Request, res: Response) {
+    try {
+      const task = await TasksService.updateTask(
+        req.professorId!,
+        req.params.id as string,
+        req.body.title,
+        req.body.description
+      );
+      return sendSuccess(res, task, 'Task updated successfully');
     } catch (error: any) {
       if (error.message.includes('Forbidden') || error.message.includes('not found')) {
         return sendError(res, error.message, 403);

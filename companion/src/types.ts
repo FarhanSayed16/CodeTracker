@@ -64,6 +64,13 @@ declare global {
       setExpanded: (expanded: boolean) => Promise<void>;
       openExternal: (url: string) => Promise<void>;
       getConfig: () => Promise<CompanionConfig>;
+      getRuntime: () => Promise<{
+        lockedRole: 'student' | 'professor' | null;
+        allowSwitchRole: boolean;
+        productLabel: string;
+        ballLabel: string;
+        isPackaged: boolean;
+      }>;
     };
   }
 }

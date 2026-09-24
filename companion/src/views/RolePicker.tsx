@@ -36,15 +36,18 @@ export function RolePicker({ onPick }: Props) {
         <SettingsView onBack={() => setShowSettings(false)} />
       ) : (
         <>
-          <p className="hint">Always-on-top companion for live labs. Pick your role.</p>
+          <p className="hint">
+            <strong>Lab live status</strong> — always-on-top Quickball. Create sessions and import
+            rosters in the web dashboard. Pick your role for this machine:
+          </p>
           <div className="role-grid">
             <button type="button" className="role-card" onClick={() => pick('professor')}>
               <h3>Professor</h3>
-              <p>Monitor active session counts and issues while you code.</p>
+              <p>Monitor live counts and issues while you code (not for creating classes).</p>
             </button>
             <button type="button" className="role-card" onClick={() => pick('student')}>
               <h3>Student</h3>
-              <p>Join with code + PIN and update task status from the ball.</p>
+              <p>Join with code + PIN and update task status. Do not also open /join in a browser.</p>
             </button>
           </div>
         </>

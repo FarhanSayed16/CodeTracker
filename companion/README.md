@@ -1,6 +1,8 @@
 # CodeTrack Companion
 
-Always-on-top desktop quickball for professors and students. Reuses the existing CodeTrack Express + Socket.IO APIs — no second database.
+Always-on-top desktop quickball for **lab live status**. Reuses the existing CodeTrack Express + Socket.IO APIs — no second database.
+
+> **One live surface:** use this companion during labs. Create sessions/rosters in the web dashboard. Student browser page is only at `/join` (phones / fallback) — do not open it alongside the companion on the same PC.
 
 ## Requirements
 
@@ -32,11 +34,15 @@ Create sessions and import rosters in the **web dashboard** (`dashboard/`). The 
 | OS / launch env | `CODETRACK_API_URL`, `CODETRACK_SOCKET_URL`, `CODETRACK_DASHBOARD_URL` |
 | In-app Settings | Same URLs, stored in `localStorage` (overrides env) |
 
-Defaults:
+Defaults (Electron):
 
 - API: `http://localhost:3000/api`
 - Socket: `http://localhost:3000`
 - Dashboard: `http://localhost:5173`
+
+Browser-dev (`npm run dev` UI in Chrome): Vite proxies `/api` and `/socket.io` to `:3000` so CORS is avoided. Use **Reset to defaults** if Settings were saved incorrectly (e.g. API set to `:5174/api`).
+
+Server CORS must allow dashboard (`5173`) and companion (`5174`) — see `server/.env.example` `CORS_ORIGIN` (companion ports are also merged in code).
 
 For lab installs, point all machines at your hosted server, e.g.:
 
