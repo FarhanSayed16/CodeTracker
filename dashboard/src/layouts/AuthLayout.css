@@ -1,0 +1,102 @@
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-default);
+}
+
+.auth-sidebar {
+  display: none;
+  width: 40%;
+  max-width: 500px;
+  background-color: var(--color-slate-900);
+  color: var(--text-inverse);
+  padding: var(--spacing-12);
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .auth-sidebar {
+    display: flex;
+  }
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+  z-index: 10;
+}
+
+.auth-logo {
+  color: var(--color-primary-400);
+}
+
+.auth-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.auth-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-slate-300);
+  line-height: 1.5;
+  max-width: 80%;
+  z-index: 10;
+}
+
+.auth-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6);
+}
+
+/* Abstract Illustration */
+.auth-illustration {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 50%;
+  z-index: 1;
+}
+
+.abstract-shape {
+  position: absolute;
+  border-radius: var(--radius-full);
+  filter: blur(40px);
+  opacity: 0.4;
+}
+
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  background-color: var(--color-primary-600);
+  bottom: -100px;
+  right: -50px;
+  animation: pulse 8s infinite alternate;
+}
+
+.shape-2 {
+  width: 250px;
+  height: 250px;
+  background-color: var(--color-indigo-500);
+  bottom: 50px;
+  left: -50px;
+  animation: pulse 12s infinite alternate-reverse;
+}
+
+.shape-3 {
+  width: 200px;
+  height: 200px;
+  background-color: var(--color-sky-500);
+  top: 0;
+  right: 50px;
+  opacity: 0.2;
+}

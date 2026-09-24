@@ -1,0 +1,232 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-slate-50);
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+  width: 250px;
+  background-color: var(--color-slate-900);
+  color: var(--text-inverse);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  transition: transform var(--transition-base);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-slate-800);
+}
+
+.sidebar-logo {
+  color: var(--color-primary-400);
+}
+
+.sidebar-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.mobile-close-btn {
+  display: none;
+  margin-left: auto;
+  color: var(--color-slate-400);
+  background: transparent;
+}
+
+.sidebar-nav {
+  padding: var(--spacing-4) var(--spacing-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-300);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.nav-item:hover {
+  background-color: var(--color-slate-800);
+  color: var(--text-inverse);
+}
+
+.nav-active {
+  background-color: var(--color-primary-600);
+  color: var(--text-inverse);
+}
+
+.nav-active:hover {
+  background-color: var(--color-primary-700);
+}
+
+/* Main Area */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 250px;
+  min-height: 100vh;
+}
+
+.dashboard-topbar {
+  height: 64px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--color-slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-6);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: var(--spacing-1);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.user-profile-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: var(--spacing-6);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Tablet: collapsed icon sidebar */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .dashboard-sidebar {
+    width: 72px;
+  }
+
+  .sidebar-title,
+  .nav-label {
+    display: none;
+  }
+
+  .sidebar-header {
+    justify-content: center;
+    padding: var(--spacing-4);
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: var(--spacing-3);
+  }
+
+  .dashboard-sidebar:hover {
+    width: 250px;
+  }
+
+  .dashboard-sidebar:hover .sidebar-title,
+  .dashboard-sidebar:hover .nav-label {
+    display: inline;
+  }
+
+  .dashboard-sidebar:hover .nav-item {
+    justify-content: flex-start;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+
+  .dashboard-main {
+    margin-left: 72px;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    width: 250px;
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+  }
+
+  .mobile-close-btn {
+    display: block;
+  }
+
+  .dashboard-main {
+    margin-left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    z-index: 35;
+    backdrop-filter: blur(2px);
+  }
+
+  .user-name {
+    display: none;
+  }
+}
