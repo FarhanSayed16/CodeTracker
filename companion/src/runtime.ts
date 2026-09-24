@@ -8,6 +8,9 @@ export interface CompanionRuntime {
   productLabel: string;
   ballLabel: string;
   isPackaged: boolean;
+  version?: string;
+  updateConfigured?: boolean;
+  openAtLogin?: boolean;
 }
 
 const BROWSER_DEV_RUNTIME: CompanionRuntime = {
@@ -16,6 +19,9 @@ const BROWSER_DEV_RUNTIME: CompanionRuntime = {
   productLabel: 'CodeTrack Companion',
   ballLabel: 'CT',
   isPackaged: false,
+  version: 'dev',
+  updateConfigured: false,
+  openAtLogin: false,
 };
 
 let runtime: CompanionRuntime = { ...BROWSER_DEV_RUNTIME };

@@ -27,6 +27,8 @@ async function request<T>(
   const { apiUrl } = getConfig();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-Client-Name': 'codetrack-companion',
+    'X-Client-Version': typeof __COMPANION_VERSION__ !== 'undefined' ? __COMPANION_VERSION__ : '1.0.0',
     ...(options.headers as Record<string, string>),
   };
   if (token) headers.Authorization = `Bearer ${token}`;

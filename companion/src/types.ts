@@ -70,7 +70,19 @@ declare global {
         productLabel: string;
         ballLabel: string;
         isPackaged: boolean;
+        version?: string;
+        updateConfigured?: boolean;
+        openAtLogin?: boolean;
       }>;
+      getDeepLink?: () => Promise<{ action: string; code: string; raw: string } | null>;
+      setOpenAtLogin?: (enabled: boolean) => Promise<boolean>;
+      hideToTray?: () => Promise<void>;
+      checkUpdate?: () => Promise<unknown>;
+      downloadUpdate?: () => Promise<unknown>;
+      installUpdate?: () => Promise<unknown>;
+      onDeepLink?: (cb: (data: { action: string; code: string }) => void) => () => void;
+      onUpdateStatus?: (cb: (data: { status: string; version?: string; percent?: number; message?: string }) => void) => () => void;
+      onToggleExpand?: (cb: () => void) => () => void;
     };
   }
 }
