@@ -3,42 +3,77 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Institution {
+  id          String       @id @default(uuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  
+  departments Department[]
+}
+
+model Department {
+  id            String      @id @default(uuid())
+  name          String
+  institutionId String
+  createdAt     DateTime    @default(now())
+  
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  professors    Professor[]
 }
 
 model Professor {
-  id           String    @id @default(uuid())
+  id           String      @id @default(uuid())
   name         String
-  email        String    @unique
+  email        String      @unique
   passwordHash String
-  createdAt    DateTime  @default(now())
+  departmentId String?
+  createdAt    DateTime    @default(now())
   
+  department   Department? @relation(fields: [departmentId], references: [id])
   classes      Class[]
 }
 
 model Class {
-  id          String     @id @default(uuid())
+  id          String            @id @default(uuid())
   className   String
   professorId String
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime          @default(now())
   
-  professor   Professor  @relation(fields: [professorId], references: [id])
-  students    Student[]
+  professor   Professor         @relation(fields: [professorId], references: [id])
+  enrollments ClassEnrollment[]
   sessions    Session[]
 }
 
 model Student {
-  id          String               @id @default(uuid())
-  rollNo      String
-  name        String
-  classId     String
+  id           String               @id @default(uuid())
+  rollNo       String               @unique
+  membershipId String?              @unique
+  name         String
+  pinHash      String?
+  pinAttempts  Int                  @default(0)
+  pinLockedAt  DateTime?
+  createdAt    DateTime             @default(now())
   
-  class       Class                @relation(fields: [classId], references: [id])
-  responses   TaskResponse[]
-  sessions    SessionParticipant[]
+  enrollments  ClassEnrollment[]
+  responses    TaskResponse[]
+  sessions     SessionParticipant[]
+}
+
+model ClassEnrollment {
+  id         String   @id @default(uuid())
+  classId    String
+  studentId  String
+  enrolledAt DateTime @default(now())
   
-  @@unique([classId, rollNo])
+  class      Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([classId, studentId])
 }
 
 model Session {
