@@ -1,0 +1,25 @@
+.connection-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all var(--transition-base);
+}
+
+.connection-text {
+  letter-spacing: 0.02em;
+}
+
+.connection-connected {
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.connection-disconnected {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  animation: pulse 2s infinite;
+}
