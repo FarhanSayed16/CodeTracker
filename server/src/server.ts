@@ -5,10 +5,10 @@ import { env } from './config/env';
 import { logger } from './utils/logger';
 import { prisma } from './config/database';
 import { initSocket } from './socket';
+import { initMqtt } from './utils/mqttClient';
 
 const server = http.createServer(app);
 
-// Initialize Socket.IO
 initSocket(server);
 
 const startServer = async () => {
@@ -16,18 +16,19 @@ const startServer = async () => {
     await prisma.$connect();
     logger.info('Connected to the database');
 
+    initMqtt();
+
     server.listen(env.PORT, () => {
-      logger.info(`🚀 CodeTrack server running on port ${env.PORT} (development)`);
+      logger.info(`CodeTrack server running on port ${env.PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    logger.error({ err: error }, 'Failed to start server');
     process.exit(1);
   }
 };
 
 startServer();
 
-// Graceful shutdown
 const shutdown = async () => {
   logger.info('Shutting down server...');
   await prisma.$disconnect();

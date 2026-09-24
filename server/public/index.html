@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeTrack Student Join</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- JOIN SCREEN -->
+  <div id="join-screen" class="active">
+    <div class="join-card">
+      <div class="join-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        <h1>CodeTrack</h1>
+      </div>
+      
+      <!-- STEP 1: Session Code -->
+      <div id="step-code" class="step active">
+        <p class="join-subtitle">Enter your session code to join the lab session.</p>
+        <form id="code-form">
+          <div class="form-group">
+            <label>Session Code</label>
+            <div class="code-inputs" id="code-inputs">
+              <input type="text" maxlength="1" class="code-box" autofocus>
+              <input type="text" maxlength="1" class="code-box">
+              <input type="text" maxlength="1" class="code-box">
+              <input type="text" maxlength="1" class="code-box">
+              <input type="text" maxlength="1" class="code-box">
+              <input type="text" maxlength="1" class="code-box">
+            </div>
+          </div>
+          <div id="code-error" class="error-message"></div>
+          <button type="submit" id="code-btn" class="primary-btn">Next &rarr;</button>
+        </form>
+      </div>
+
+      <!-- STEP 2: Find Yourself (Search by Name or Roll No) -->
+      <div id="step-search" class="step hidden">
+        <p class="join-subtitle">Search for yourself by name or roll number.</p>
+        <div class="form-group">
+          <label for="search-input">Type your name or last digits of roll number</label>
+          <input type="text" id="search-input" class="roll-input" placeholder="e.g. Farhan or 044" autocomplete="off">
+        </div>
+        <div id="search-results" class="search-results"></div>
+        <div id="search-error" class="error-message"></div>
+        <button type="button" id="back-to-code" class="secondary-btn">&larr; Back</button>
+      </div>
+
+      <!-- STEP 3: PIN Entry -->
+      <div id="step-pin" class="step hidden">
+        <p class="join-subtitle" id="pin-subtitle">Enter your 4-digit PIN to verify your identity.</p>
+        <div id="selected-student-info" class="selected-student-info"></div>
+        <form id="pin-form">
+          <div class="form-group">
+            <label>PIN</label>
+            <div class="pin-inputs" id="pin-inputs">
+              <input type="password" maxlength="1" class="code-box pin-box" inputmode="numeric">
+              <input type="password" maxlength="1" class="code-box pin-box" inputmode="numeric">
+              <input type="password" maxlength="1" class="code-box pin-box" inputmode="numeric">
+              <input type="password" maxlength="1" class="code-box pin-box" inputmode="numeric">
+            </div>
+          </div>
+          <div id="pin-error" class="error-message"></div>
+          <button type="submit" id="pin-btn" class="primary-btn">Join Session &rarr;</button>
+        </form>
+        <button type="button" id="back-to-search" class="secondary-btn">&larr; Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLAPSED WIDGET -->
+  <div id="widget-collapsed" class="widget-draggable hidden">
+    <div class="widget-bubble">
+      <span>CT</span>
+      <div id="notification-dot" class="notification-dot hidden"></div>
+    </div>
+  </div>
+
+  <!-- EXPANDED WIDGET -->
+  <div id="widget-expanded" class="widget-draggable hidden">
+    <div class="widget-header" id="widget-drag-handle">
+      <div class="widget-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        CodeTrack
+      </div>
+      <div class="widget-controls">
+        <button id="minimize-btn" title="Minimize">&minus;</button>
+        <button id="close-btn" title="Close">&times;</button>
+      </div>
+    </div>
+    
+    <div class="widget-session-info">
+      <h3 id="session-title">Session Title</h3>
+      <span id="session-code-display" class="session-code-badge">CODE</span>
+    </div>
+
+    <div class="widget-tasks" id="task-list">
+      <!-- Tasks injected via JS -->
+    </div>
+
+    <div class="widget-footer">
+      <div id="connection-status" class="connection-status">
+        <div class="status-dot connected"></div>
+        <span>Connected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

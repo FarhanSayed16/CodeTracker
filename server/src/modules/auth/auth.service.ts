@@ -12,7 +12,7 @@ export class AuthService {
         name: professor.name,
       },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN }
+      { expiresIn: env.JWT_EXPIRES_IN as any }
     );
   }
 
@@ -32,6 +32,7 @@ export class AuthService {
         name: data.name,
         email: data.email,
         passwordHash,
+        ...(data.departmentId ? { departmentId: data.departmentId } : {})
       },
     });
 
@@ -82,6 +83,9 @@ export class AuthService {
         name: true,
         email: true,
         createdAt: true,
+        department: {
+          select: { id: true, name: true, institution: { select: { id: true, name: true } } }
+        }
       },
     });
 
@@ -90,5 +94,38 @@ export class AuthService {
     }
 
     return professor;
+  }
+
+  static async updateProfile(professorId: string, name: string) {
+    const professor = await prisma.professor.update({
+      where: { id: professorId },
+      data: { name },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        department: {
+          select: { id: true, name: true, institution: { select: { id: true, name: true } } },
+        },
+      },
+    });
+    return professor;
+  }
+
+  static async changePassword(professorId: string, currentPassword: string, newPassword: string) {
+    const professor = await prisma.professor.findUnique({ where: { id: professorId } });
+    if (!professor) throw new Error('Professor not found');
+
+    const valid = await argon2.verify(professor.passwordHash, currentPassword);
+    if (!valid) throw new Error('Current password is incorrect');
+
+    const passwordHash = await argon2.hash(newPassword);
+    await prisma.professor.update({
+      where: { id: professorId },
+      data: { passwordHash },
+    });
+
+    return { success: true };
   }
 }

@@ -2,9 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { sendError } from '../utils/apiResponse';
-import { prisma } from '../config/database';
-import { SessionStatus } from '../types/enums';
 
+export type StudentTokenPayload = {
+  studentId: string;
+  rollNo: string;
+  name: string;
+  sessionId: string;
+};
+
+/** Auth for student JWT issued at session join. */
 export const studentAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
@@ -13,25 +19,10 @@ export const studentAuthMiddleware = async (req: Request, res: Response, next: N
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, env.JWT_SECRET) as {
-      studentId: string;
-      rollNo: string;
-      name: string;
-      sessionId: string;
-    };
+    const decoded = jwt.verify(token, env.JWT_SECRET) as StudentTokenPayload;
 
-    // Check if session is still active
-    const session = await prisma.session.findUnique({
-      where: { id: decoded.sessionId },
-      select: { status: true },
-    });
-
-    if (!session) {
-      return sendError(res, 'Session not found', 404);
-    }
-
-    if (session.status !== SessionStatus.ACTIVE) {
-      return sendError(res, 'Session has ended', 403);
+    if (!decoded.studentId || !decoded.sessionId) {
+      return sendError(res, 'Invalid student token', 401);
     }
 
     req.student = {
@@ -41,7 +32,7 @@ export const studentAuthMiddleware = async (req: Request, res: Response, next: N
       sessionId: decoded.sessionId,
     };
     next();
-  } catch (error) {
-    return sendError(res, 'Invalid or expired student token', 401);
+  } catch {
+    return sendError(res, 'Invalid or expired token', 401);
   }
 };
