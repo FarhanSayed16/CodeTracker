@@ -50,6 +50,20 @@
   to { opacity: 1; }
 }
 
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+}
+
+@keyframes typewriter-pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -68,4 +82,18 @@
 
 .animate-fade {
   animation: fadeIn var(--transition-base) forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--transition-base) forwards;
+}
+
+.animate-progress {
+  animation: progressFill var(--transition-base) forwards;
+}
+
+.animate-typewriter {
+  animation: typewriter 1s steps(6, end) forwards;
+  overflow: hidden;
+  white-space: nowrap;
 }
