@@ -158,6 +158,14 @@ You currently have **three separate live clients**, not one system:
 
 **Exit criteria:** Student build has zero professor UI; professor build has zero student join; IT can image a lab from docs alone.
 
+**Phase 2 implementation status (2026-09-24):**
+- [x] 2.1 Role-locked builds (`dist:student` / `dist:professor` / `role.lock.json` / `CODETRACK_ROLE`)
+- [x] 2.2 First-run UX — locked builds skip RolePicker; hide Switch role
+- [x] 2.3 Professor ACTIVE attach + “Attach latest” + clearer copy
+- [x] 2.4 Student join polish (hints, live search already in Phase 1)
+- [x] 2.5 [`Lab_Image_Install.md`](./Lab_Image_Install.md)
+- [x] 2.6 Desktop `/join` banner + `/download` landing page
+
 ---
 
 ### Phase 3 — Ship Windows Quickball as the product *(~5–7 days)*  
@@ -176,6 +184,16 @@ You currently have **three separate live clients**, not one system:
 
 **Exit criteria:** Fresh Windows PC → install → connect to hosted API → full lab without opening `:3000` or `:5174` in a browser.
 
+**Phase 3 implementation status (2026-09-24):**
+- [x] 3.1 Icon + NSIS Start Menu / Desktop / run after finish; product names per role
+- [x] 3.2 Tray, single-instance, hide-to-tray, Start with Windows
+- [x] 3.3 `lab-config.json` + `CODETRACK_*` / `CODETRACK_UPDATE_URL` preconfigure
+- [x] 3.4 `codetrack://join?code=` + `/open` bridge; QR uses `/open`
+- [x] 3.5 `electron-updater` generic feed when `updateUrl` set
+- [x] 3.6 Signing docs + builder sha256 hooks ([`Windows_Code_Signing.md`](./Windows_Code_Signing.md))
+- [x] 3.7 `/download` page polish
+- [ ] 3.8 Manual E2E on lab image ([`Phase3_E2E_Lab_Checklist.md`](./Phase3_E2E_Lab_Checklist.md))
+
 ---
 
 ### Phase 4 — Mobile, harden, production credit *(~1–2 weeks)*  
@@ -193,6 +211,16 @@ You currently have **three separate live clients**, not one system:
 | 4.8 | **Acceptance / “production credit” gate** | See §5 checklist — all must pass. |
 
 **Exit criteria:** Checklist §5 green; class can run without developer present.
+
+**Phase 4 implementation status (2026-09-24):**
+- [x] 4.1 `/join` PWA (manifest, SW, icons, touch targets)
+- [x] 4.2 Android/TWA path documented ([`Android_PWA_Path.md`](./Android_PWA_Path.md)) — PWA is v1
+- [x] 4.3 Student session takeover (`session-taken-over` kicks older sockets)
+- [x] 4.4 Lab Monitor “Mute alerts” + manuals note dual-monitor usage
+- [x] 4.5 `X-Client-Name` / `X-Client-Version` + status failure logging
+- [x] 4.6 Prod CORS (no auto-localhost), HTTPS guard / `REQUIRE_HTTPS`
+- [x] 4.7 Manuals: [`Manual_Student.md`](./Manual_Student.md), [`Manual_Professor.md`](./Manual_Professor.md), [`Manual_Lab_IT.md`](./Manual_Lab_IT.md)
+- [x] 4.8 Gate checklist: [`Production_Credit_Checklist.md`](./Production_Credit_Checklist.md)
 
 ---
 

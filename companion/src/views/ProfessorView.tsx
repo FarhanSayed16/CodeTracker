@@ -361,16 +361,17 @@ export function ProfessorView({
               <button type="button" className="btn secondary" onClick={copyCode}>
                 Copy code
               </button>
-              <button
+                  <button
                 type="button"
                 className="btn ghost"
+                title="Mute companion sounds when the web dashboard is already open"
                 onClick={() => {
                   const next = !muted;
                   setMuted(next);
                   setMutedState(next);
                 }}
               >
-                {muted ? 'Unmute' : 'Mute'}
+                {muted ? 'Unmute alerts' : 'Mute alerts'}
               </button>
               <button type="button" className="btn danger" onClick={doEnd} disabled={loading}>
                 End

@@ -83,6 +83,7 @@ export function StudentView({
     sock.off('new-task');
     sock.off('task-removed');
     sock.off('status-resolved');
+    sock.off('session-taken-over');
 
     // Students are auto-joined to session rooms by the server — do NOT emit join-session
     sock.on('connect', () => setConnected(true));
@@ -90,6 +91,11 @@ export function StudentView({
     sock.on('session-ended', () => {
       setSessionEnded(true);
       showToast('Session ended', 'error');
+    });
+    sock.on('session-taken-over', () => {
+      setConnected(false);
+      showToast('Signed in elsewhere — this Quickball was disconnected', 'error');
+      disconnectSocket();
     });
     sock.on(
       'new-task',
@@ -237,7 +243,24 @@ export function StudentView({
   };
 
   useEffect(() => {
+    const unsub = window.companion?.onToggleExpand?.(() => setExpanded((e) => !e));
+    return () => unsub?.();
+  }, []);
+
+  useEffect(() => {
+    const applyLink = (data: { action?: string; code?: string } | null) => {
+      if (!data?.code) return;
+      const v = data.code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+      setCode(v);
+      setStep('join');
+      setExpanded(true);
+      setSearchHint('Session code filled from link — type your name to search.');
+      showToast(`Session code ${v} from link`, 'success');
+    };
+    void window.companion?.getDeepLink?.().then(applyLink);
+    const unsub = window.companion?.onDeepLink?.(applyLink);
     return () => {
+      unsub?.();
       if (searchTimer.current) window.clearTimeout(searchTimer.current);
     };
   }, []);
@@ -374,18 +397,22 @@ export function StudentView({
             <button type="button" className="btn ghost" onClick={logout}>
               Leave
             </button>
-            <button type="button" className="btn ghost" onClick={switchRole}>
-              Switch role
-            </button>
+            {allowSwitchRole && (
+              <button type="button" className="btn ghost" onClick={switchRole}>
+                Switch role
+              </button>
+            )}
           </>
         ) : step !== 'settings' ? (
           <>
             <button type="button" className="btn ghost" onClick={() => setStep('settings')}>
               Config
             </button>
-            <button type="button" className="btn ghost" onClick={switchRole}>
-              Switch role
-            </button>
+            {allowSwitchRole && (
+              <button type="button" className="btn ghost" onClick={switchRole}>
+                Switch role
+              </button>
+            )}
           </>
         ) : null
       }
@@ -394,6 +421,7 @@ export function StudentView({
 
       {step === 'join' && (
         <>
+          <p className="hint">Enter the full session code from the board / QR, then search your name.</p>
           <div className="field">
             <label className="label">Session code</label>
             <input
@@ -404,10 +432,11 @@ export function StudentView({
                 setError('');
                 scheduleSearch(v, query);
               }}
-              placeholder="e.g. ABC123"
+              placeholder="e.g. 84XQ3U"
               maxLength={8}
               autoCapitalize="characters"
               spellCheck={false}
+              autoFocus
             />
           </div>
           <div className="field">

@@ -37,8 +37,9 @@ export function RolePicker({ onPick }: Props) {
       ) : (
         <>
           <p className="hint">
-            <strong>Lab live status</strong> — always-on-top Quickball. Create sessions and import
-            rosters in the web dashboard. Pick your role for this machine:
+            <strong>Lab live status</strong> (unlocked developer build). Create sessions in the web
+            dashboard. Lab images should use role-locked installers — see{' '}
+            <code>docs/Lab_Image_Install.md</code>.
           </p>
           <div className="role-grid">
             <button type="button" className="role-card" onClick={() => pick('professor')}>
