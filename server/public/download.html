@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download CodeTrack Companion</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .dl-page {
+      max-width: 520px;
+      margin: 48px auto;
+      padding: 24px;
+      text-align: center;
+    }
+    .dl-page h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    .dl-page > p { color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+    .dl-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .dl-card h2 { font-size: 1.1rem; margin-bottom: 6px; }
+    .dl-card p { font-size: 0.9rem; margin-bottom: 12px; color: var(--text-muted); }
+    .dl-note { font-size: 12px; color: var(--text-muted); margin-top: 24px; line-height: 1.4; }
+    .dl-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="dl-page">
+    <h1>CodeTrack Quickball</h1>
+    <p>Always-on-top companion for live labs. Install the Windows build for your role — then stay in VS Code.</p>
+
+    <div class="dl-card">
+      <h2>Students (lab PCs)</h2>
+      <p>Join with code + PIN and update task status. No professor login on this build.</p>
+      <div class="dl-actions">
+        <a class="primary-btn" href="/downloads/CodeTrack-Student-Setup.exe">Download Student (Windows)</a>
+      </div>
+    </div>
+
+    <div class="dl-card">
+      <h2>Professors (Lab Monitor)</h2>
+      <p>Live counts and issues while you code. Create sessions in the web dashboard.</p>
+      <div class="dl-actions">
+        <a class="primary-btn" href="/downloads/CodeTrack-LabMonitor-Setup.exe">Download Lab Monitor (Windows)</a>
+      </div>
+    </div>
+
+    <div class="dl-card">
+      <h2>Already installed?</h2>
+      <p>Open a session directly in the app (deep link).</p>
+      <div class="dl-actions">
+        <a class="secondary-btn" id="open-app" href="codetrack://join">Open Companion</a>
+        <a class="secondary-btn" href="/join">Phone / browser join</a>
+      </div>
+    </div>
+
+    <p class="dl-note">
+      After <code>companion npm run dist:all</code>, copy installers to
+      <code>server/public/downloads/</code> as
+      <code>CodeTrack-Student-Setup.exe</code> and
+      <code>CodeTrack-LabMonitor-Setup.exe</code>.
+      QR codes use <code>/open?code=…</code> which tries the app first, then browser join.
+      See <code>docs/Lab_Image_Install.md</code> and <code>docs/Windows_Code_Signing.md</code>.
+    </p>
+  </div>
+  <script>
+    const code = new URLSearchParams(location.search).get('code');
+    if (code) {
+      const c = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      document.getElementById('open-app').href = 'codetrack://join?code=' + encodeURIComponent(c);
+    }
+  </script>
+</body>
+</html>

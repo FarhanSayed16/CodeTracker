@@ -58,9 +58,15 @@ body {
   color: #fff;
 }
 
-.lab-banner-link {
-  color: #6ee7b7;
-  margin-left: 8px;
+.lab-banner--desktop {
+  background: #3b2f14;
+  border-bottom-color: rgba(245, 158, 11, 0.5);
+  color: #fef3c7;
+}
+
+.lab-banner--desktop .lab-banner-link {
+  color: #fbbf24;
+  font-weight: 600;
 }
 
 .join-path-hint {
@@ -721,13 +727,47 @@ body {
 
   .code-box,
   .pin-box {
-    width: 42px;
-    height: 48px;
-    font-size: 18px;
+    width: 44px;
+    height: 52px;
+    font-size: 20px;
+    min-height: 48px;
+  }
+
+  .roll-input,
+  .primary-btn,
+  .secondary-btn,
+  .search-result-item,
+  .status-option {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    padding: 14px 18px;
   }
 
   .search-results {
     max-height: 220px;
+  }
+
+  .join-card {
+    width: calc(100% - 24px);
+    max-width: 420px;
+    padding: 24px 18px;
+  }
+
+  /* Prefer full-screen join on phones; widget floats only after join */
+  body.pwa-standalone #join-screen.active {
+    min-height: 100dvh;
+    align-items: flex-start;
+    padding-top: calc(52px + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    /* installed PWA */
   }
 }
 /* === TOAST NOTIFICATION === */

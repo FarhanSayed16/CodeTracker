@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open in CodeTrack</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .open-page { max-width: 420px; margin: 64px auto; padding: 24px; text-align: center; }
+    .open-page h1 { font-size: 1.35rem; margin-bottom: 12px; }
+    .open-page p { color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+    .code-pill {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      letter-spacing: 0.15em;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="open-page">
+    <h1>Opening CodeTrack Student…</h1>
+    <p id="msg">If the app is installed, it should open with your session code.</p>
+    <div class="code-pill" id="code-display"></div>
+    <a class="primary-btn" id="protocol-link" href="#">Open Companion</a>
+    <p style="margin-top:16px">
+      <a class="secondary-btn" id="join-web" href="/join">Continue in browser</a>
+    </p>
+    <p style="margin-top:12px">
+      <a href="/download">Don't have the app? Download</a>
+    </p>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+    const deep = code ? 'codetrack://join?code=' + encodeURIComponent(code) : 'codetrack://join';
+    document.getElementById('code-display').textContent = code || '—';
+    document.getElementById('protocol-link').href = deep;
+    document.getElementById('join-web').href = code ? '/join?code=' + encodeURIComponent(code) : '/join';
+    // Attempt protocol open once
+    if (code) {
+      const t = setTimeout(function () {}, 1500);
+      window.location.href = deep;
+    }
+  </script>
+</body>
+</html>

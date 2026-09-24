@@ -4,6 +4,31 @@ const ISSUE_MAX_LEN = 500;
 const SNAP_PAD = 16;
 const SEARCH_DEBOUNCE_MS = 300;
 
+/** Soft-deprecate browser join on Windows/macOS lab desktops — Companion is preferred. */
+(function enhanceLabBanner() {
+  const banner = document.getElementById('lab-banner');
+  const text = document.getElementById('lab-banner-text');
+  const link = document.getElementById('download-link');
+  if (!banner || !text) return;
+  const ua = navigator.userAgent || '';
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+  const isDesktop = /Windows|Macintosh|Linux/i.test(ua) && !isMobile;
+  if (isDesktop) {
+    banner.classList.add('lab-banner--desktop');
+    text.innerHTML =
+      '<strong>Windows / lab PC?</strong> Install <em>CodeTrack Student</em> Quickball instead of this page — it stays on top while you code.';
+    if (link) {
+      link.hidden = false;
+      link.textContent = 'Download for Windows';
+    }
+  } else if (isMobile) {
+    banner.classList.add('lab-banner--mobile');
+    text.innerHTML =
+      '<strong>Phone join</strong> — enter the session code below. Lab PCs should use the desktop Companion app.';
+    if (link) link.hidden = true;
+  }
+})();
+
 // ==========================================
 // DOM Elements
 // ==========================================
@@ -611,6 +636,13 @@ function initWidget(studentName, sessionCode) {
   });
 
   socket.on('session-ended', () => { handleSessionEnded(); });
+
+  socket.on('session-taken-over', () => {
+    showToast('Signed in on another device. This tab was disconnected.', 'error');
+    statusDot.className = 'status-dot disconnected';
+    statusText.textContent = 'Taken over';
+    try { socket.disconnect(); } catch (_) {}
+  });
   
   socket.on('status-resolved', (data) => {
     if (sessionEnded) return;
@@ -820,7 +852,12 @@ async function sendStatusUpdate(taskId, status, issueText = '') {
   try {
     const res = await fetch(`${API_URL}/responses/status`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${studentToken}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${studentToken}`,
+        'X-Client-Name': 'codetrack-join-web',
+        'X-Client-Version': '1.0.0',
+      },
       body: JSON.stringify({ taskId, status, issueText })
     });
     if (!res.ok) { const data = await res.json(); throw new Error(data.error || 'Failed to update status'); }
@@ -857,4 +894,9 @@ function showToast(message, type = 'info') {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
     }, 300);
   }, 3000);
+}
+
+// PWA standalone (Add to Home Screen)
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.body.classList.add('pwa-standalone');
 }

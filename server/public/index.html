@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CodeTrack">
   <title>CodeTrack Student Join</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,9 +23,11 @@
   <!-- JOIN SCREEN -->
   <div id="join-screen" class="active">
     <div class="lab-banner" id="lab-banner">
-      <strong>Lab PCs:</strong> use the <em>CodeTrack Companion</em> Quickball app for live status.
-      This page is for phones / fallback only — avoid running both at once.
-      <a href="/download" id="download-link" class="lab-banner-link" hidden>Download</a>
+      <span id="lab-banner-text">
+        <strong>Lab PCs:</strong> use the <em>CodeTrack Companion</em> Quickball for live status.
+        This page is for phones / fallback — avoid running both at once.
+      </span>
+      <a href="/download" id="download-link" class="lab-banner-link">Get Windows app</a>
     </div>
     <div class="join-card">
       <div class="join-header">
@@ -122,5 +132,12 @@
   <div id="toast-container"></div>
 
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
