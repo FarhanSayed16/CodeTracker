@@ -15,24 +15,43 @@ Always-on-top desktop quickball for **lab live status**. Reuses the existing Cod
 ```bash
 cd companion
 npm install
-npm run dev
+npm run dev              # unlocked — role picker (developers)
+npm run dev:student      # Student-only UI (lab QA)
+npm run dev:professor    # Lab Monitor-only UI (lab QA)
 ```
 
-This starts Vite on port `5174` and opens the Electron window (frameless, always on top).
+Browser without Electron: `http://localhost:5174/?role=student` or `?role=professor`.
 
-1. Click the ball (or leave expanded) → pick **Professor** or **Student**
-2. Open **Server config** if the API is not on `http://localhost:3000`
-3. Student: session code → search name/roll → PIN → status clicks  
-4. Professor: login → attach ACTIVE session → live counts + issues
+1. Student build → Join → PIN → status  
+2. Professor build → Login → attach ACTIVE session  
+3. Open **Server config** only if API is not on `http://localhost:3000`
 
-Create sessions and import rosters in the **web dashboard** (`dashboard/`). The companion is for live monitoring and status only.
+## Role-locked Windows installers (lab images)
+
+```bash
+npm run dist:student     # → release/CodeTrack-Student-Setup-*.exe
+npm run dist:professor   # → release/CodeTrack-LabMonitor-Setup-*.exe
+npm run dist:all         # both, then reset lock to unlocked
+npm run dist:unlocked    # dual-role (dev / support only)
+```
+
+| Artifact | Role on machine |
+|----------|-----------------|
+| CodeTrack Student | Join / status only — **no** professor login |
+| CodeTrack Lab Monitor | Professor monitor — **no** student join |
+| CodeTrack Companion (unlocked) | Role picker — **not** for lab images |
+
+IT guide: [`docs/Lab_Image_Install.md`](../docs/Lab_Image_Install.md). Download landing: `http://<api-host>/download`.
+
+Env override (MDM): `CODETRACK_ROLE=student|professor` forces lock even on unlocked builds.
 
 ## Configuration
 
 | Source | Keys |
 |--------|------|
-| OS / launch env | `CODETRACK_API_URL`, `CODETRACK_SOCKET_URL`, `CODETRACK_DASHBOARD_URL` |
+| OS / launch env | `CODETRACK_API_URL`, `CODETRACK_SOCKET_URL`, `CODETRACK_DASHBOARD_URL`, `CODETRACK_ROLE` |
 | In-app Settings | Same URLs, stored in `localStorage` (overrides env) |
+| Packaged lock | `electron/role.lock.json` written by `scripts/set-role.cjs` at build time |
 
 Defaults (Electron):
 
@@ -40,43 +59,20 @@ Defaults (Electron):
 - Socket: `http://localhost:3000`
 - Dashboard: `http://localhost:5173`
 
-Browser-dev (`npm run dev` UI in Chrome): Vite proxies `/api` and `/socket.io` to `:3000` so CORS is avoided. Use **Reset to defaults** if Settings were saved incorrectly (e.g. API set to `:5174/api`).
+Browser-dev: Vite proxies `/api` and `/socket.io` to `:3000`. Use **Reset to defaults** if Settings were saved incorrectly.
 
-Server CORS must allow dashboard (`5173`) and companion (`5174`) — see `server/.env.example` `CORS_ORIGIN` (companion ports are also merged in code).
+## Lab PC checklist
 
-For lab installs, point all machines at your hosted server, e.g.:
+1. Install **Student** or **Lab Monitor** (not unlocked) on the right machines.
+2. Set `CODETRACK_*_URL` or ship `lab-config.json` with your hosted API.
+3. Students must not bookmark `/join` on lab browsers — use the Quickball.
+4. Close (X) hides to **tray**; Quit from tray menu. Optional: **Start with Windows**.
+5. Deep link: `codetrack://join?code=XXXX` or HTTPS `/open?code=XXXX`.
+6. JWT restore works after reboot while the session is ACTIVE (~4h).
+7. Signing: see [`docs/Windows_Code_Signing.md`](../docs/Windows_Code_Signing.md). E2E: [`docs/Phase3_E2E_Lab_Checklist.md`](../docs/Phase3_E2E_Lab_Checklist.md).
 
-```
-CODETRACK_API_URL=https://your-host.example/api
-CODETRACK_SOCKET_URL=https://your-host.example
-CODETRACK_DASHBOARD_URL=https://dashboard.your-host.example
-```
+## Out of scope (Phase 4+)
 
-## Windows installer
-
-```bash
-cd companion
-npm install
-npm run dist
-```
-
-Output: `companion/release/CodeTrack-Companion-Setup-1.0.0.exe` (NSIS).
-
-### Lab PC install checklist
-
-1. Install the `.exe` on each lab machine (or copy the portable `win-unpacked` folder from `npm run dist:dir`).
-2. Ensure lab PCs can reach the CodeTrack API (firewall / LAN).
-3. Optionally set system environment variables for the three URLs above, or ask users to open **Config** once.
-4. Optional: pin the app to the taskbar; the window stays always-on-top over VS Code.
-5. Students join once per lab (JWT ~4h); restore works after reboot while the session is ACTIVE.
-
-## Roles
-
-**Student** — join/PIN/status UI + socket restore (same flows as `server/public`).
-
-**Professor** — JWT login, attach ACTIVE session, live joined/done/working/issue counts, issue strip, mute, copy code, open full dashboard, end session.
-
-## Out of scope (v1)
-
+- Mobile PWA / Android store wrapper
+- VS Code / Chrome extensions
 - Creating classes/sessions inside the ball
-- VS Code / Chrome extensions (possible later add-ons)

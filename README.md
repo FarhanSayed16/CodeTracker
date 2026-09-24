@@ -55,18 +55,26 @@ npm run dev
 Dashboard: `http://localhost:5173`
 
 ### 5. Desktop companion (optional)
-Always-on-top quickball for live labs (works over VS Code). See [`companion/README.md`](companion/README.md).
+Always-on-top quickball for live labs. See [`companion/README.md`](companion/README.md) and [`docs/Lab_Image_Install.md`](docs/Lab_Image_Install.md).
 
 ```bash
 cd companion
 npm install
-npm run dev          # development
-npm run dist         # Windows installer → companion/release/
+npm run dev:student      # or dev:professor / unlocked: npm run dev
+npm run dist:all         # Student + Lab Monitor Windows installers
 ```
+
+Download page (after copying installers into `server/public/downloads/`): `http://localhost:3000/download`
 
 ## Classroom sessions
 - Student JWTs last **`STUDENT_JWT_EXPIRES_IN`** (default **4h**) so a 3–3.5h lab does not expire mid-class
 - The student widget restores from `localStorage` after a tab refresh while the session is still ACTIVE
+- Phone join: `http://localhost:3000/join` (PWA — Add to Home Screen)
+
+## User manuals & production gate
+- [`docs/Manual_Student.md`](docs/Manual_Student.md) · [`docs/Manual_Professor.md`](docs/Manual_Professor.md) · [`docs/Manual_Lab_IT.md`](docs/Manual_Lab_IT.md)
+- [`docs/Production_Credit_Checklist.md`](docs/Production_Credit_Checklist.md)
+- Roadmap: [`docs/Production_Ready_Quickball_Enhancement_Plan.md`](docs/Production_Ready_Quickball_Enhancement_Plan.md)
 
 ## IoT / MQTT
 `ENABLE_MQTT=false` by default — no broker connection. Set `ENABLE_MQTT=true` and `MQTT_URL` when attaching ESP32 hubs (see `hardware/README.md`).

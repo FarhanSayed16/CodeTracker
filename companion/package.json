@@ -15,19 +15,38 @@
     "dist:unlocked": "node scripts/set-role.cjs unlocked && npm run build && electron-builder --win",
     "dist:student": "node scripts/set-role.cjs student && npm run build && electron-builder --win --config electron-builder.student.cjs",
     "dist:professor": "node scripts/set-role.cjs professor && npm run build && electron-builder --win --config electron-builder.professor.cjs",
-    "dist:all": "npm run dist:student && npm run dist:professor",
-    "dist:dir": "node scripts/set-role.cjs unlocked && npm run build && electron-builder --win --dir"
+    "dist:all": "npm run dist:student && npm run dist:professor && node scripts/set-role.cjs unlocked",
+    "dist:dir": "node scripts/set-role.cjs unlocked && npm run build && electron-builder --win --dir",
+    "publish:student": "node scripts/set-role.cjs student && npm run build && electron-builder --win --config electron-builder.student.cjs --publish always"
   },
   "build": {
     "appId": "com.codetrack.companion",
     "productName": "CodeTrack Companion",
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
       "electron/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/lab-config.json",
+        "to": "lab-config.json"
+      },
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "icon": "build/icon.png",
+    "protocols": [
+      {
+        "name": "CodeTrack",
+        "schemes": ["codetrack"]
+      }
     ],
     "win": {
       "target": [
@@ -36,16 +55,20 @@
           "arch": ["x64"]
         }
       ],
-      "artifactName": "CodeTrack-Companion-Setup-${version}.${ext}"
+      "artifactName": "CodeTrack-Companion-Setup-${version}.${ext}",
+      "signingHashAlgorithms": ["sha256"]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
       "shortcutName": "CodeTrack Companion"
     }
   },
   "dependencies": {
+    "electron-updater": "^6.3.9",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
