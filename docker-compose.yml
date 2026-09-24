@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  codetrack:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL:-${DATABASE_URL}}
+      - JWT_SECRET=${JWT_SECRET:-super_secret_production_key_change_me}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      - ENABLE_MQTT=${ENABLE_MQTT:-false}
+      - MQTT_URL=mqtt://mosquitto:1883
+      - GRACE_WINDOW_SECONDS=120
+      - STUDENT_JWT_EXPIRES_IN=4h
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}
+    volumes:
+      - codetrack_data:/app/server/data
+    depends_on:
+      mosquitto:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    # 1883 exposed for on-LAN ESP32 hubs. Do not expose this host to the public internet.
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  codetrack_data:
+  mosquitto_data:
