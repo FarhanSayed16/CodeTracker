@@ -36,13 +36,8 @@ export function sanitizeUrl(
 }
 
 function browserDevDefaults(): CompanionConfig {
-  if (!isElectron() && import.meta.env.DEV) {
-    return {
-      apiUrl: `${window.location.origin}/api`,
-      socketUrl: window.location.origin,
-      dashboardUrl: 'http://localhost:5173',
-    };
-  }
+  // Always point at the Express API (:3000), not the Vite companion port (:5174).
+  // CORS already allows 5173/5174; using origin/api made "Connected · :5174/api" look wrong.
   return { ...FALLBACK };
 }
 

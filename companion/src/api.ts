@@ -86,6 +86,16 @@ export const getSession = (token: string, sessionId: string) =>
 export const endSession = (token: string, sessionId: string) =>
   request(`/sessions/${sessionId}/end`, { method: 'POST' }, token);
 
+export const createTask = (token: string, sessionId: string, title: string, description?: string) =>
+  request<{ id: string; title: string; taskNumber: number; description?: string | null }>(
+    '/tasks',
+    {
+      method: 'POST',
+      body: JSON.stringify({ sessionId, title, description }),
+    },
+    token
+  );
+
 export const getResponseGrid = (token: string, sessionId: string) =>
   request<{
     students: { id: string; name: string; rollNo: string }[];
