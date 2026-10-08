@@ -7,7 +7,7 @@ One-page guide for IT / lab admins. Students and professors use **different** Wi
 | Machine | Install | User sees |
 |---------|---------|-----------|
 | Student lab PC | **CodeTrack Student** | Join → PIN → task status only |
-| Professor laptop | **CodeTrack Lab Monitor** | Login → ACTIVE session live counts |
+| Professor laptop | **CodeTrack Professor Quickball** (`FOR-PROFESSOR`) | Login → ACTIVE session live counts |
 | Professor browser | Web dashboard (`:5173` or hosted) | Create class, roster, session, full grid |
 | Phones | Browser `/join` | Fallback only |
 
@@ -23,15 +23,16 @@ npm run dist:all
 
 Outputs (under `companion/release/`):
 
-- `CodeTrack-Student-Setup-1.0.0.exe`
-- `CodeTrack-LabMonitor-Setup-1.0.0.exe`
+- `CodeTrack-FOR-STUDENTS-Setup-1.0.0.exe`
+- `CodeTrack-FOR-PROFESSOR-Setup-1.0.0.exe`
+- (ignore) `CodeTrack-DEV-BothRoles-Setup-*.exe` — developers only
 
 Copy them to the API host download folder for `/download`:
 
 ```bash
 mkdir -p server/public/downloads
-cp companion/release/CodeTrack-Student-Setup-*.exe server/public/downloads/CodeTrack-Student-Setup.exe
-cp companion/release/CodeTrack-LabMonitor-Setup-*.exe server/public/downloads/CodeTrack-LabMonitor-Setup.exe
+cp companion/release/CodeTrack-FOR-STUDENTS-Setup-*.exe server/public/downloads/CodeTrack-FOR-STUDENTS-Setup.exe
+cp companion/release/CodeTrack-FOR-PROFESSOR-Setup-*.exe server/public/downloads/CodeTrack-FOR-PROFESSOR-Setup.exe
 ```
 
 ## Preconfigure API URL (lab image)

@@ -4,8 +4,8 @@
 
 | Machine | Installer |
 |---------|-----------|
-| Student PCs | `CodeTrack-Student-Setup.exe` |
-| Professor laptops | `CodeTrack-LabMonitor-Setup.exe` |
+| Student PCs | `CodeTrack-FOR-STUDENTS-Setup.exe` |
+| Professor laptops | `CodeTrack-FOR-PROFESSOR-Setup.exe` |
 
 Build: `cd companion && npm run dist:all` → copy into `server/public/downloads/`.
 

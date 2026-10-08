@@ -8,7 +8,7 @@
 
 ## During class (while coding)
 
-1. Open **CodeTrack Lab Monitor** (Quickball).
+1. Open **CodeTrack Professor Quickball**.
 2. Sign in with your professor account.
 3. Attach the ACTIVE session (or **Attach latest**).
 4. Watch **Joined / Done / Working / Issues** on the ball.
