@@ -15,12 +15,16 @@ export default function App() {
     (async () => {
       await initConfig();
       const rt = await initRuntime();
-      const initial = resolveInitialRole(getRole());
+      const inBrowser = typeof window !== 'undefined' && !window.companion;
+
       if (rt.lockedRole) {
         setRole(rt.lockedRole);
         setRoleState(rt.lockedRole);
+      } else if (inBrowser && import.meta.env.DEV) {
+        // Browser QA: always show Role picker so Student join ≠ Professor login
+        setRoleState(null);
       } else {
-        setRoleState(initial);
+        setRoleState(resolveInitialRole(getRole()));
       }
       if (rt.productLabel) {
         document.title = rt.productLabel;
