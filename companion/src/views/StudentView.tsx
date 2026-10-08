@@ -415,7 +415,7 @@ export function StudentView({
             </button>
             {allowSwitchRole && (
               <button type="button" className="btn ghost" onClick={switchRole}>
-                Switch role
+                ← Sir login
               </button>
             )}
           </>
@@ -426,7 +426,7 @@ export function StudentView({
             </button>
             {allowSwitchRole && (
               <button type="button" className="btn ghost" onClick={switchRole}>
-                Switch role
+                ← Sir login
               </button>
             )}
           </>
@@ -437,13 +437,14 @@ export function StudentView({
 
       {step === 'join' && (
         <>
+          <div className="mode-banner mode-banner--stu">Student mode — no email login</div>
           <div className={`api-status ${apiOk === true ? 'ok' : apiOk === false ? 'err' : ''}`}>
             <span className="dot" />
             <span>{apiMsg}</span>
           </div>
           {apiOk === false && (
             <button type="button" className="btn secondary block" onClick={() => setStep('settings')}>
-              Open Config — set API URL
+              Open Config — set API URL to http://localhost:3000/api
             </button>
           )}
           <p className="hint">Enter the full session code, then your name. Results appear below — tap your name.</p>

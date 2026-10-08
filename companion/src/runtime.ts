@@ -53,7 +53,8 @@ export async function initRuntime(): Promise<CompanionRuntime> {
     runtime = {
       lockedRole: queryLock,
       allowSwitchRole: false,
-      productLabel: queryLock === 'student' ? 'CodeTrack Student' : 'CodeTrack Lab Monitor',
+      productLabel:
+        queryLock === 'student' ? 'CodeTrack Student Quickball' : 'CodeTrack Professor Quickball',
       ballLabel: queryLock === 'student' ? 'STU' : 'PROF',
       isPackaged: false,
     };

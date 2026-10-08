@@ -106,6 +106,8 @@ export function ProfessorView({
   const [live, setLive] = useState<LiveSession | null>(null);
   const [counts, setCounts] = useState<Counts>({ joined: 0, done: 0, inProgress: 0, issues: 0 });
   const [issues, setIssues] = useState<IssueItem[]>([]);
+  const [tasks, setTasks] = useState<{ id: string; title: string; taskNumber: number }[]>([]);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
   const [toast, setToast] = useState<string | null>(null);
   const [muted, setMutedState] = useState(isMuted());
   const [taskTitles, setTaskTitles] = useState<Record<string, string>>({});
@@ -123,6 +125,9 @@ export function ProfessorView({
     const titles: Record<string, string> = {};
     for (const t of gridData.tasks) titles[t.id] = t.title;
     setTaskTitles(titles);
+    setTasks(
+      [...gridData.tasks].sort((a, b) => (a.taskNumber || 0) - (b.taskNumber || 0))
+    );
     setLive({
       id: session.id,
       title: session.title,
@@ -139,7 +144,7 @@ export function ProfessorView({
       };
     });
     setCounts(computed.counts);
-    setIssues(computed.issues);
+    setIssues(computed.issues.slice(0, 8));
     return session;
   }, []);
 
@@ -200,7 +205,7 @@ export function ProfessorView({
                 ...prev.filter(
                   (i) => !(i.studentId === data.studentId && i.taskId === data.taskId)
                 ),
-              ].slice(0, 20)
+              ].slice(0, 8)
             );
           }
         }
@@ -309,6 +314,23 @@ export function ProfessorView({
     }
   };
 
+  const doAddTask = async () => {
+    if (!token || !live) return;
+    const title = newTaskTitle.trim() || `Task ${tasks.length + 1}`;
+    setLoading(true);
+    setError('');
+    try {
+      await api.createTask(token, live.id, title);
+      setNewTaskTitle('');
+      await refreshGrid(token, live.id);
+      showToast(`Added ${title}`);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Could not add task');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     disconnectSocket();
     setProfessorToken(null);
@@ -335,13 +357,21 @@ export function ProfessorView({
           ? 'Active sessions'
           : live?.title || 'Live session';
 
+  const nextTaskHint = `Task ${tasks.length + 1}`;
+  const ballSub =
+    step === 'live' && live?.sessionCode
+      ? live.sessionCode.slice(-4)
+      : undefined;
+
   return (
     <Shell
       expanded={expanded}
       onToggle={() => setExpanded((e) => !e)}
       label={ballLabel}
       connected={connected}
-      badge={counts.issues}
+      badge={step === 'live' ? counts.issues : undefined}
+      ballStats={step === 'live' ? counts : null}
+      ballSubLabel={ballSub}
       title={title}
       headerExtra={
         step === 'live' ? (
@@ -355,15 +385,15 @@ export function ProfessorView({
         <>
           {step === 'live' && (
             <>
-              <button type="button" className="btn secondary" onClick={openDashboard}>
-                Dashboard
-              </button>
               <button type="button" className="btn secondary" onClick={copyCode}>
                 Copy code
               </button>
-                  <button
+              <button type="button" className="btn secondary" onClick={openDashboard}>
+                Dashboard
+              </button>
+              <button
                 type="button"
-                className="btn ghost"
+                className="btn secondary"
                 title="Mute companion sounds when the web dashboard is already open"
                 onClick={() => {
                   const next = !muted;
@@ -371,14 +401,14 @@ export function ProfessorView({
                   setMutedState(next);
                 }}
               >
-                {muted ? 'Unmute alerts' : 'Mute alerts'}
+                {muted ? 'Unmute' : 'Mute'}
               </button>
               <button type="button" className="btn danger" onClick={doEnd} disabled={loading}>
                 End
               </button>
             </>
           )}
-          {step !== 'settings' && (
+          {step !== 'settings' && step !== 'live' && (
             <>
               <button type="button" className="btn ghost" onClick={() => setStep('settings')}>
                 Config
@@ -390,7 +420,7 @@ export function ProfessorView({
               )}
               {allowSwitchRole && (
                 <button type="button" className="btn ghost" onClick={switchRole}>
-                  Switch role
+                  ← Student join
                 </button>
               )}
             </>
@@ -404,6 +434,7 @@ export function ProfessorView({
 
       {step === 'login' && (
         <>
+          <div className="mode-banner mode-banner--prof">Professor / Sir — email login</div>
           <div className="field">
             <label className="label">Email</label>
             <input
@@ -439,8 +470,8 @@ export function ProfessorView({
       {step === 'pick' && (
         <>
           <p className="hint">
-            ACTIVE sessions only (most recent first). Create or end sessions in the web dashboard —
-            this ball is for live monitoring.
+            ACTIVE sessions only (most recent first). Start a session from the dashboard, then attach
+            here — add tasks and watch issues from the Quickball.
           </p>
           {loading && <p className="hint">Loading…</p>}
           {error && <p className="error">{error}</p>}
@@ -487,7 +518,7 @@ export function ProfessorView({
 
       {step === 'live' && live && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="live-top">
             <span className="session-code">{live.sessionCode}</span>
             <button type="button" className="btn ghost" onClick={() => setStep('pick')}>
               Switch
@@ -511,19 +542,62 @@ export function ProfessorView({
               <div className="l">Issues</div>
             </div>
           </div>
-          <div>
-            <div className="label">Latest issues</div>
-            <div className="issue-list">
-              {issues.length === 0 && <div className="empty">No open issues</div>}
-              {issues.map((iss) => (
-                <div key={`${iss.studentId}-${iss.taskId}-${iss.timestamp}`} className="issue-row">
-                  <div className="who">{iss.studentName}</div>
-                  <div className="meta">{iss.taskTitle}</div>
-                  {iss.issueText && <div>{iss.issueText}</div>}
-                </div>
-              ))}
+
+          <div className="live-section">
+            <div className="label">Add task</div>
+            <div className="add-task-row">
+              <input
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder={nextTaskHint}
+                maxLength={120}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void doAddTask();
+                }}
+              />
+              <button
+                type="button"
+                className="btn"
+                onClick={() => void doAddTask()}
+                disabled={loading}
+              >
+                Add
+              </button>
             </div>
           </div>
+
+          <div className="live-section">
+            <div className="label">Tasks · {tasks.length}</div>
+            {tasks.length === 0 ? (
+              <div className="empty">No tasks yet — add one above</div>
+            ) : (
+              <ul className="task-list">
+                {tasks.map((t) => (
+                  <li key={t.id}>
+                    <span className="task-num">T{t.taskNumber}</span>
+                    <span className="task-title">{t.title}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {issues.length > 0 && (
+            <div className="live-section">
+              <div className="label">Needs help · {issues.length}</div>
+              <div className="issue-list">
+                {issues.map((iss) => (
+                  <div key={`${iss.studentId}-${iss.taskId}-${iss.timestamp}`} className="issue-row">
+                    <div className="who">{iss.studentName}</div>
+                    <div className="meta">{iss.taskTitle}</div>
+                    {iss.issueText && <div className="issue-text">{iss.issueText}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {error && <p className="error">{error}</p>}
         </>
       )}
 

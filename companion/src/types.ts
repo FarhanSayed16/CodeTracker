@@ -62,6 +62,8 @@ declare global {
   interface Window {
     companion?: {
       setExpanded: (expanded: boolean) => Promise<void>;
+      getBounds?: () => Promise<{ x: number; y: number; width: number; height: number } | null>;
+      setPosition?: (x: number, y: number) => Promise<void>;
       openExternal: (url: string) => Promise<void>;
       getConfig: () => Promise<CompanionConfig>;
       getRuntime: () => Promise<{
