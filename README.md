@@ -41,7 +41,7 @@ npm run dev
 ```
 API: `http://localhost:3000` · Student join: `http://localhost:3000/join` · QR links use `/join?code=`
 
-Seed professor: `john.doe@example.com` / `password123`
+Seed professor: `sudarshan@gmail.com` / `password123` (MCA I Sem 2026-28 roster)
 
 > **Lab PCs:** use the desktop Companion Quickball for live status. The `/join` page is for phones / fallback — do not run both on the same machine.
 
@@ -61,7 +61,7 @@ Always-on-top quickball for live labs. See [`companion/README.md`](companion/REA
 cd companion
 npm install
 npm run dev:student      # or dev:professor / unlocked: npm run dev
-npm run dist:all         # Student + Lab Monitor Windows installers
+npm run dist:all         # FOR-STUDENTS + FOR-PROFESSOR Windows installers
 ```
 
 Download page (after copying installers into `server/public/downloads/`): `http://localhost:3000/download`

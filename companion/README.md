@@ -29,8 +29,8 @@ Browser without Electron: `http://localhost:5174/?role=student` or `?role=profes
 ## Role-locked Windows installers (lab images)
 
 ```bash
-npm run dist:student     # → release/CodeTrack-Student-Setup-*.exe
-npm run dist:professor   # → release/CodeTrack-LabMonitor-Setup-*.exe
+npm run dist:student     # → release/CodeTrack-FOR-STUDENTS-Setup-*.exe
+npm run dist:professor   # → release/CodeTrack-FOR-PROFESSOR-Setup-*.exe
 npm run dist:all         # both, then reset lock to unlocked
 npm run dist:unlocked    # dual-role (dev / support only)
 ```

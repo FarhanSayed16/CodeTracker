@@ -21,7 +21,7 @@
   },
   "build": {
     "appId": "com.codetrack.companion",
-    "productName": "CodeTrack Companion",
+    "productName": "CodeTrack DEV Both Roles",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -55,7 +55,7 @@
           "arch": ["x64"]
         }
       ],
-      "artifactName": "CodeTrack-Companion-Setup-${version}.${ext}",
+      "artifactName": "CodeTrack-DEV-BothRoles-Setup-${version}.${ext}",
       "signingHashAlgorithms": ["sha256"]
     },
     "nsis": {
@@ -64,7 +64,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": true,
-      "shortcutName": "CodeTrack Companion"
+      "shortcutName": "CodeTrack DEV Both Roles"
     }
   },
   "dependencies": {

@@ -3,12 +3,12 @@ const { base } = require('./electron-builder.shared.cjs');
 module.exports = base({
   root: {
     appId: 'com.codetrack.labmonitor',
-    productName: 'CodeTrack Lab Monitor',
+    productName: 'CodeTrack Professor Quickball',
   },
   win: {
-    artifactName: 'CodeTrack-LabMonitor-Setup-${version}.${ext}',
+    artifactName: 'CodeTrack-FOR-PROFESSOR-Setup-${version}.${ext}',
   },
   nsis: {
-    shortcutName: 'CodeTrack Lab Monitor',
+    shortcutName: 'CodeTrack Professor Quickball',
   },
 });
