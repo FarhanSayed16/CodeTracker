@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download CodeTrack Companion</title>
+  <title>Download CodeTrack Quickball</title>
   <link rel="stylesheet" href="/style.css" />
   <style>
     .dl-page {
@@ -31,40 +31,41 @@
 <body>
   <div class="dl-page">
     <h1>CodeTrack Quickball</h1>
-    <p>Always-on-top companion for live labs. Install the Windows build for your role — then stay in VS Code.</p>
+    <p>Pick the installer for your role. Students and professors get different apps on purpose.</p>
 
     <div class="dl-card">
-      <h2>Students (lab PCs)</h2>
-      <p>Join with code + PIN and update task status. No professor login on this build.</p>
+      <h2>For students</h2>
+      <p>Install on lab PCs. Enter session code → select your name → PIN → update status. No email login.</p>
       <div class="dl-actions">
-        <a class="primary-btn" href="/downloads/CodeTrack-Student-Setup.exe">Download Student (Windows)</a>
+        <a class="primary-btn" href="/downloads/CodeTrack-FOR-STUDENTS-Setup.exe">Download FOR STUDENTS (Windows)</a>
       </div>
     </div>
 
     <div class="dl-card">
-      <h2>Professors (Lab Monitor)</h2>
-      <p>Live counts and issues while you code. Create sessions in the web dashboard.</p>
+      <h2>For professor / sir</h2>
+      <p>Install on the teacher laptop. Email login → attach live session → watch counts. Create sessions in the web dashboard.</p>
       <div class="dl-actions">
-        <a class="primary-btn" href="/downloads/CodeTrack-LabMonitor-Setup.exe">Download Lab Monitor (Windows)</a>
+        <a class="primary-btn" href="/downloads/CodeTrack-FOR-PROFESSOR-Setup.exe">Download FOR PROFESSOR (Windows)</a>
       </div>
     </div>
 
     <div class="dl-card">
       <h2>Already installed?</h2>
-      <p>Open a session directly in the app (deep link).</p>
+      <p>Open a session directly in the app (deep link), or use phone join.</p>
       <div class="dl-actions">
-        <a class="secondary-btn" id="open-app" href="codetrack://join">Open Companion</a>
+        <a class="secondary-btn" id="open-app" href="codetrack://join">Open Quickball</a>
         <a class="secondary-btn" href="/join">Phone / browser join</a>
       </div>
     </div>
 
     <p class="dl-note">
-      After <code>companion npm run dist:all</code>, copy installers to
-      <code>server/public/downloads/</code> as
-      <code>CodeTrack-Student-Setup.exe</code> and
-      <code>CodeTrack-LabMonitor-Setup.exe</code>.
-      QR codes use <code>/open?code=…</code> which tries the app first, then browser join.
-      See <code>docs/Lab_Image_Install.md</code> and <code>docs/Windows_Code_Signing.md</code>.
+      After <code>cd companion && npm run dist:all</code>, copy:
+      <code>CodeTrack-FOR-STUDENTS-Setup-*.exe</code> →
+      <code>server/public/downloads/CodeTrack-FOR-STUDENTS-Setup.exe</code>
+      and
+      <code>CodeTrack-FOR-PROFESSOR-Setup-*.exe</code> →
+      <code>server/public/downloads/CodeTrack-FOR-PROFESSOR-Setup.exe</code>.
+      Do <strong>not</strong> distribute <code>CodeTrack-DEV-BothRoles-Setup</code> to the lab (dev only).
     </p>
   </div>
   <script>
