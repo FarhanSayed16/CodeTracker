@@ -2,6 +2,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('companion', {
   setExpanded: (expanded) => ipcRenderer.invoke('companion:setExpanded', expanded),
+  getBounds: () => ipcRenderer.invoke('companion:getBounds'),
+  /** Fire-and-forget move (collapsed ball uses native CSS drag). */
+  setPosition: (x, y) => {
+    ipcRenderer.send('companion:setPosition', x, y);
+  },
   openExternal: (url) => ipcRenderer.invoke('companion:openExternal', url),
   getConfig: () => ipcRenderer.invoke('companion:getConfig'),
   getRuntime: () => ipcRenderer.invoke('companion:getRuntime'),

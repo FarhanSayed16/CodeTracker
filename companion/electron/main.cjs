@@ -8,9 +8,22 @@ let tray = null;
 let pendingDeepLink = null;
 let isQuitting = false;
 
-const COLLAPSED = { width: 72, height: 72 };
+const COLLAPSED = { width: 88, height: 88 };
 const EXPANDED = { width: 340, height: 520 };
 const PROTOCOL = 'codetrack';
+
+function clampBoundsToWorkArea(x, y, width, height) {
+  const display = screen.getDisplayMatching({ x, y, width, height });
+  const wa = display.workArea;
+  const maxX = wa.x + Math.max(0, wa.width - width);
+  const maxY = wa.y + Math.max(0, wa.height - height);
+  return {
+    x: Math.min(Math.max(x, wa.x), maxX),
+    y: Math.min(Math.max(y, wa.y), maxY),
+    width,
+    height,
+  };
+}
 
 // —— Single instance ——
 const gotLock = app.requestSingleInstanceLock();
@@ -43,12 +56,12 @@ function readLockedRole() {
 
 function productMeta(lockedRole) {
   if (lockedRole === 'student') {
-    return { productLabel: 'CodeTrack Student', ballLabel: 'STU' };
+    return { productLabel: 'CodeTrack Student Quickball', ballLabel: 'STU' };
   }
   if (lockedRole === 'professor') {
-    return { productLabel: 'CodeTrack Lab Monitor', ballLabel: 'PROF' };
+    return { productLabel: 'CodeTrack Professor Quickball', ballLabel: 'PROF' };
   }
-  return { productLabel: 'CodeTrack Companion', ballLabel: 'CT' };
+  return { productLabel: 'CodeTrack DEV Both Roles', ballLabel: 'CT' };
 }
 
 /** Merge lab-config.json (packaged / next to exe) + env for IT preconfigure. */
@@ -163,14 +176,18 @@ function createTray() {
 
 function createWindow() {
   const display = screen.getPrimaryDisplay().workArea;
-  const x = display.x + display.width - EXPANDED.width - 24;
-  const y = display.y + display.height - EXPANDED.height - 24;
+  const initial = clampBoundsToWorkArea(
+    display.x + display.width - EXPANDED.width - 24,
+    display.y + display.height - EXPANDED.height - 24,
+    EXPANDED.width,
+    EXPANDED.height
+  );
 
   mainWindow = new BrowserWindow({
-    width: EXPANDED.width,
-    height: EXPANDED.height,
-    x,
-    y,
+    width: initial.width,
+    height: initial.height,
+    x: initial.x,
+    y: initial.y,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -179,6 +196,7 @@ function createWindow() {
     minimizable: true,
     fullscreenable: false,
     skipTaskbar: false,
+    // Rectangular OS shadow makes the collapsed ball look square — enable only when expanded
     hasShadow: true,
     show: false,
     backgroundColor: '#00000000',
@@ -193,6 +211,13 @@ function createWindow() {
 
   mainWindow.setAlwaysOnTop(true, 'screen-saver');
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  if (process.platform === 'win32') {
+    try {
+      mainWindow.setBackgroundMaterial?.('none');
+    } catch {
+      /* older Electron */
+    }
+  }
 
   if (isDev) {
     mainWindow.loadURL('http://127.0.0.1:5174');
@@ -201,7 +226,9 @@ function createWindow() {
   }
 
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.executeJavaScript('document.body.classList.add("electron")');
+    mainWindow.webContents.executeJavaScript(
+      'document.documentElement.classList.add("electron");document.body.classList.add("electron");'
+    );
     if (pendingDeepLink) {
       mainWindow.webContents.send('companion:deepLink', pendingDeepLink);
       pendingDeepLink = null;
@@ -336,14 +363,36 @@ ipcMain.handle('companion:setExpanded', (_event, expanded) => {
   if (!mainWindow) return;
   const bounds = mainWindow.getBounds();
   const size = expanded ? EXPANDED : COLLAPSED;
-  const x = bounds.x + bounds.width - size.width;
-  const y = bounds.y + bounds.height - size.height;
-  mainWindow.setBounds({
-    x: Math.max(0, x),
-    y: Math.max(0, y),
-    width: size.width,
-    height: size.height,
-  });
+  // Anchor bottom-right of current window so the ball stays under the cursor area
+  const nextX = bounds.x + bounds.width - size.width;
+  const nextY = bounds.y + bounds.height - size.height;
+  mainWindow.setBounds(clampBoundsToWorkArea(nextX, nextY, size.width, size.height));
+  // Windows draws a rectangular drop-shadow; hide it for the circular ball
+  try {
+    mainWindow.setHasShadow(!!expanded);
+  } catch {
+    /* ignore */
+  }
+});
+
+ipcMain.handle('companion:getBounds', () => {
+  if (!mainWindow) return null;
+  return mainWindow.getBounds();
+});
+
+function applyWindowPosition(x, y) {
+  if (!mainWindow) return;
+  const bounds = mainWindow.getBounds();
+  const clamped = clampBoundsToWorkArea(Number(x) || 0, Number(y) || 0, bounds.width, bounds.height);
+  mainWindow.setPosition(clamped.x, clamped.y);
+}
+
+ipcMain.on('companion:setPosition', (_event, x, y) => {
+  applyWindowPosition(x, y);
+});
+
+ipcMain.handle('companion:setPosition', (_event, x, y) => {
+  applyWindowPosition(x, y);
 });
 
 ipcMain.handle('companion:openExternal', (_event, url) => {
